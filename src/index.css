@@ -214,7 +214,7 @@ body {
   right: -4px;
   top: 50%;
   transform: translateY(-53%);
-  width: clamp(290px, 25vw, 352px);
+  width: clamp(300px, 26vw, 372px);
   aspect-ratio: 0.84;
   z-index: 1;
   pointer-events: none;
@@ -223,7 +223,7 @@ body {
   content: "";
   position: absolute;
   inset: 6% -8%;
-  background: radial-gradient(closest-side, rgba(56, 189, 248, 0.13), transparent 72%);
+  background: radial-gradient(closest-side, rgba(56, 189, 248, 0.09), transparent 72%);
   pointer-events: none;
 }
 .hero-character-mount {
