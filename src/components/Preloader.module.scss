@@ -1,0 +1,140 @@
+@use "../app/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #030407;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+
+.leaving {
+  opacity: 0;
+  transform: translateY(-2.5%);
+  pointer-events: none;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* --- badge: gradient circle + thin ring with 3 dots --- */
+.badgeWrap {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 26px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid rgba($blue, 0.45);
+    animation: ringspin 7s linear infinite;
+  }
+}
+
+@keyframes ringspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.badge {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: $gradient-badge;
+  display: grid;
+  place-items: center;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $bright-blue;
+  z-index: 1;
+}
+
+.dot1 {
+  top: 2px;
+  left: 20px;
+}
+.dot2 {
+  top: 46px;
+  right: -2px;
+}
+.dot3 {
+  bottom: 4px;
+  left: 16px;
+}
+
+/* --- name / role --- */
+.name {
+  font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.surname {
+  color: $bright-blue;
+}
+
+.role {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  color: $gray;
+  letter-spacing: 0.02em;
+}
+
+/* --- progress bar: fills over ~1.8s, no numbers --- */
+.barTrack {
+  margin-top: 30px;
+  width: 200px;
+  height: 3px;
+  border-radius: 999px;
+  background: #22262e;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: $gradient-bar;
+  transform-origin: left center;
+  animation: fillbar 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes fillbar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.caption {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: $gray;
+}

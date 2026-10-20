@@ -1,0 +1,149 @@
+@use "../app/variables" as *;
+
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  padding: 120px clamp(20px, 6vw, 84px) 64px;
+  background:
+    radial-gradient(60% 50% at 78% 30%, rgba($blue, 0.13), transparent 65%),
+    $bg;
+}
+
+.pill {
+  display: inline-block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba($bright-blue, 0.45);
+  background: rgba($blue, 0.12);
+  color: #bcd6ff;
+  font-size: 0.83rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.headline {
+  margin-top: 26px;
+  font-size: clamp(3rem, 8vw, 5.6rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+
+  span {
+    display: block;
+  }
+}
+
+.lineWhite {
+  color: #fff;
+}
+
+.lineBlue {
+  color: $bright-blue;
+}
+
+.roleLine {
+  margin-top: 22px;
+  min-height: 1.5em;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 600;
+  color: $bright-blue;
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 0.9s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.tagline {
+  margin-top: 14px;
+  max-width: 46ch;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: $muted;
+}
+
+.actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btnPrimary {
+  background: $blue;
+  color: #fff;
+
+  &:hover {
+    background: #2f6fe0;
+  }
+}
+
+.btnGhost {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: $text;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+/* --- right column: Part 3 character placeholder --- */
+.right {
+  display: flex;
+  justify-content: center;
+}
+
+.panel {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 4 / 5;
+  border: 1.5px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: $muted;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 880px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 104px;
+  }
+
+  .panel {
+    max-width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+}

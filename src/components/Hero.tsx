@@ -1,113 +1,117 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
-import Reveal from './Reveal'
-import Typewriter from './Typewriter'
-import CountUp from './CountUp'
-import { ArrowDownIcon, DownloadIcon } from './icons'
+"use client";
 
-// The 3D hero character is a lazy chunk (three.js + model) that is only
-// ever requested on desktop viewports — see Character3D.tsx.
-const Character3D = lazy(() => import('./Character3D'))
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ArrowRight, Mail } from "lucide-react";
+import styles from "./Hero.module.scss";
 
-function useDesktopViewport(): boolean {
-  const [isDesktop, setIsDesktop] = useState(false)
+const ROLES = ["CSE Student", "Web Developer", "Builder"];
+
+function useTypewriter(roles: string[]) {
+  const [text, setText] = useState("");
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const update = () => setIsDesktop(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [])
-  return isDesktop
+    let role = 0;
+    let char = 0;
+    let deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      const word = roles[role];
+      char += deleting ? -1 : 1;
+      setText(word.slice(0, char));
+      let delay = deleting ? 42 : 88;
+      if (!deleting && char === word.length) {
+        delay = 1500;
+        deleting = true;
+      } else if (deleting && char === 0) {
+        deleting = false;
+        role = (role + 1) % roles.length;
+        delay = 350;
+      }
+      timer = setTimeout(tick, delay);
+    };
+    timer = setTimeout(tick, 400);
+    return () => clearTimeout(timer);
+  }, [roles]);
+
+  return text;
 }
 
-// Hovering a primary CTA makes the character react (ThumbsUp / Yes) —
-// Character3D listens for this event and degrades silently if unmounted.
-function ctaGesture() {
-  window.dispatchEvent(new CustomEvent('character:gesture', { detail: 'approve' }))
-}
-
-const STATS: Array<{ value: number; label: string }> = [
-  { value: 1, label: 'Live Product' },
-  { value: 36, label: 'Pages Shipped' },
-  { value: 3, label: 'Linux Distros Hands-On' },
-  { value: 1, label: 'Workshop Led' },
-]
-
+/**
+ * Hero shell (Part 2) — placeholder only. Left: pill, stacked headline,
+ * rotating typewriter role, tagline, two buttons. Right: empty panel where
+ * the Part 3 character will mount. GSAP drives the headline entrance
+ * (delayed until the preloader has lifted).
+ */
 export default function Hero() {
-  const isDesktop = useDesktopViewport()
+  const rootRef = useRef<HTMLElement>(null);
+  const role = useTypewriter(ROLES);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline({ delay: 2.05, defaults: { ease: "power3.out" } })
+        .from("[data-animate='pill']", { y: 18, opacity: 0, duration: 0.55 })
+        .from(
+          "[data-animate='line']",
+          { y: 56, opacity: 0, duration: 0.8, stagger: 0.13 },
+          "-=0.25",
+        )
+        .from(
+          "[data-animate='fade']",
+          { y: 22, opacity: 0, duration: 0.6, stagger: 0.1 },
+          "-=0.4",
+        )
+        .from(
+          "[data-animate='panel']",
+          { opacity: 0, scale: 0.97, duration: 0.8 },
+          "-=0.5",
+        );
+    }, rootRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <header className="hero">
-      <div className="hero-grid" aria-hidden="true" />
-      {isDesktop && (
-        <div className="hero-character" aria-hidden="true">
-          <Suspense fallback={null}>
-            <Character3D />
-          </Suspense>
+    <section className={styles.hero} ref={rootRef}>
+      <div className={styles.left}>
+        <span className={styles.pill} data-animate="pill">
+          Diploma CSE • Builder
+        </span>
+
+        <h1 className={styles.headline}>
+          <span className={styles.lineWhite} data-animate="line">
+            Anurag
+          </span>
+          <span className={styles.lineBlue} data-animate="line">
+            Vishwakarma
+          </span>
+        </h1>
+
+        <div className={styles.roleLine} data-animate="fade">
+          {role}
+          <span className={styles.cursor}>|</span>
         </div>
-      )}
-      <Reveal>
-        <div className="flex items-center gap-3.5">
-          {/* Small circular avatar only — the source photo is 150×150 and
-              would pixelate at hero size. A larger photo will replace it later. */}
-          <img
-            className="hero-avatar"
-            src="/avatar.jpg"
-            alt="Anurag Vishwakarma"
-            width={46}
-            height={46}
-          />
-          <p className="font-mono text-[12.5px] tracking-[0.22em] uppercase text-accent">
-            Anurag Vishwakarma — Bhopal, India
-          </p>
+
+        <p className={styles.tagline} data-animate="fade">
+          I build real products while I learn — one live product, shipped from
+          Bhopal to the web.
+        </p>
+
+        <div className={styles.actions} data-animate="fade">
+          <a href="#" className={styles.btnPrimary}>
+            View Projects <ArrowRight size={17} strokeWidth={2.2} />
+          </a>
+          <a href="#" className={styles.btnGhost}>
+            <Mail size={17} strokeWidth={2.2} /> Contact
+          </a>
         </div>
-      </Reveal>
-
-      <h1>
-        I build <span className="accent">systems</span> that solve real problems.
-      </h1>
-
-      <div className="role-line">
-        <span className="prompt">&gt;</span>
-        <Typewriter />
-        <span className="caret" aria-hidden="true" />
       </div>
 
-      <p className="lede">
-        Diploma CSE student who ships real products — not demos. My marketplace for farmers is
-        live, with escrow payments, quality checks, and a Hindi-first voice experience.
-      </p>
-
-      <div className="cta-row">
-        <a className="btn btn-solid" href="#work" onMouseEnter={ctaGesture}>
-          See My Work
-          <ArrowDownIcon />
-        </a>
-        <a className="btn btn-ghost" href="#contact">
-          Get in Touch
-        </a>
-        <a
-          className="btn btn-ghost"
-          href="/resume.pdf"
-          download="Anurag-Vishwakarma-Resume.pdf"
-          onMouseEnter={ctaGesture}
-        >
-          <DownloadIcon />
-          Download Résumé
-        </a>
+      <div className={styles.right}>
+        <div className={styles.panel} data-animate="panel">
+          <span>3D Character — Part 3</span>
+        </div>
       </div>
-
-      <div className="stat-strip">
-        {STATS.map((stat, i) => (
-          <Reveal key={stat.label} delay={i * 0.08}>
-            <div className="stat">
-              <div className="num">
-                <CountUp target={stat.value} />
-              </div>
-              <div className="lbl">{stat.label}</div>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-    </header>
-  )
+    </section>
+  );
 }
