@@ -54,6 +54,9 @@ export default function Projects() {
 
   return (
     <section className={styles.section} id="projects" ref={rootRef}>
+      <p className={styles.eyebrow} data-animate="projects-eyebrow">
+        <span className={styles.num}>03</span> Projects
+      </p>
       <h2 className={styles.heading} data-animate="projects-heading">
         Projects<span className={styles.accent}>.</span>
       </h2>

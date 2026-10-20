@@ -60,6 +60,9 @@ export default function Journey() {
 
   return (
     <section className={styles.section} id="journey" ref={rootRef}>
+      <p className={styles.eyebrow} data-animate="journey-eyebrow">
+        <span className={styles.num}>04</span> Journey
+      </p>
       <h2 className={styles.heading} data-animate="journey-heading">
         My <span className={styles.accent}>Journey</span>
       </h2>

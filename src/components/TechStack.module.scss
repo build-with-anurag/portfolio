@@ -5,6 +5,22 @@
   background: $bg;
 }
 
+.eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  color: $gray;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+
+  .num {
+    color: $bright-blue;
+  }
+}
 .heading {
   text-align: center;
   font-size: clamp(2rem, 5vw, 3.3rem);

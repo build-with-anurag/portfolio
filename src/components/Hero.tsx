@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import gsap from "gsap";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail } from "lucide-react";
 import styles from "./Hero.module.scss";
 
 // Part 3: the 3D character scene is client-only (three.js / WebGL).
@@ -102,10 +102,10 @@ export default function Hero() {
         </p>
 
         <div className={styles.actions} data-animate="fade">
-          <a href="#" className={styles.btnPrimary}>
+          <a href="#projects" className={styles.btnPrimary}>
             View Projects <ArrowRight size={17} strokeWidth={2.2} />
           </a>
-          <a href="#" className={styles.btnGhost}>
+          <a href="#contact" className={styles.btnGhost}>
             <Mail size={17} strokeWidth={2.2} /> Contact
           </a>
         </div>
@@ -116,6 +116,15 @@ export default function Hero() {
           <HeroScene />
         </div>
       </div>
+
+      <a
+        className={styles.scrollCue}
+        href="#about"
+        aria-label="Scroll down to the About section"
+      >
+        <span>Scroll to explore</span>
+        <ChevronDown size={15} strokeWidth={2.2} aria-hidden="true" />
+      </a>
     </section>
   );
 }

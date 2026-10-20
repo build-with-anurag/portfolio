@@ -49,6 +49,9 @@ export default function About() {
   return (
     <section className={styles.about} id="about" ref={rootRef}>
       <div className={styles.inner}>
+        <p className={styles.eyebrow} data-animate="about-eyebrow">
+          <span className={styles.num}>01</span> About
+        </p>
         <h2 className={styles.heading} data-animate="about-heading">
           About <span className={styles.accent}>Me</span>
         </h2>

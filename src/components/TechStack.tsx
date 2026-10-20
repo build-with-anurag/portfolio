@@ -65,6 +65,9 @@ export default function TechStack() {
 
   return (
     <section className={styles.section} ref={rootRef} aria-label="Tech stack">
+      <p className={styles.eyebrow} data-animate="stack-eyebrow">
+        <span className={styles.num}>02</span> Tech Stack
+      </p>
       <h2 className={styles.heading} data-animate="stack-heading">
         MY TECH <span className={styles.accent}>STACK</span>
       </h2>

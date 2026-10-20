@@ -8,6 +8,28 @@
     $bg;
 }
 
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  color: $gray;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+
+  .num {
+    color: $bright-blue;
+  }
+
+  &::after {
+    content: "";
+    width: 54px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba($bright-blue, 0.55), transparent);
+  }
+}
 .heading {
   font-size: clamp(2rem, 5vw, 3.3rem);
   font-weight: 800;

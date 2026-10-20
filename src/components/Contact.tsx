@@ -39,6 +39,9 @@ export default function Contact() {
   return (
     <>
       <section className={styles.contact} id="contact" ref={rootRef}>
+        <p className={styles.eyebrow} data-animate="contact-eyebrow">
+          <span className={styles.num}>05</span> Contact
+        </p>
         <h2 className={styles.heading} data-animate="contact-heading">
           Let&apos;s Build <span className={styles.accent}>Something</span>
         </h2>

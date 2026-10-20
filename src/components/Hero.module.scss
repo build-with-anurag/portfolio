@@ -1,6 +1,7 @@
 @use "../app/variables" as *;
 
 .hero {
+  position: relative;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -137,10 +138,47 @@
   }
 }
 
+.scrollCue {
+  position: absolute;
+  left: clamp(20px, 6vw, 84px);
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: $gray;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  transition: color 0.25s ease;
+
+  svg {
+    animation: cueBob 2.2s ease-in-out infinite;
+  }
+
+  &:hover {
+    color: $bright-blue;
+  }
+}
+
+@keyframes cueBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
 @media (max-width: 880px) {
   .hero {
     grid-template-columns: 1fr;
     padding-top: 104px;
+  }
+
+  .scrollCue {
+    display: none;
   }
 
   .stage {

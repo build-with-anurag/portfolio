@@ -6,6 +6,7 @@ import TechStack from "@/components/TechStack";
 import Projects from "@/components/Projects";
 import Journey from "@/components/Journey";
 import Contact from "@/components/Contact";
+import ResumeCorner from "@/components/ResumeCorner";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <Journey />
         <Contact />
       </main>
+      <ResumeCorner />
     </>
   );
 }
