@@ -68,7 +68,7 @@ export default function TechStack() {
       <h2 className={styles.heading} data-animate="stack-heading">
         MY TECH <span className={styles.accent}>STACK</span>
       </h2>
-      <div className={styles.stage} data-animate="stack-stage" ref={stageRef}>
+      <div className={styles.stage} data-animate="stack-stage" ref={stageRef} role="img" aria-label="Interactive physics balls, each printed with a technology logo from Anurag's stack">
         {stageInRange ? <TechStackScene /> : <div className={styles.stagePlaceholder} />}
       </div>
     </section>

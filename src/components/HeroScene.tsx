@@ -33,10 +33,11 @@ export default function HeroScene() {
   }, []);
 
   return (
-    <div className={styles.scene} ref={wrapRef}>
+    <div className={styles.scene} ref={wrapRef} role="img" aria-label="Animated morphing 3D mesh artwork">
       {inRange && (
         <Canvas
           shadows
+          dpr={[1, 1.75]}
           camera={{ position: [0, 0.35, 4.6], fov: 40 }}
           gl={{ alpha: true, antialias: true }}
           style={{ background: "transparent" }}
