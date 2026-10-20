@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ArrowRight, Mail } from "lucide-react";
 import styles from "./Hero.module.scss";
+
+// Part 3: the 3D character scene is client-only (three.js / WebGL).
+const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
 
 const ROLES = ["CSE Student", "Web Developer", "Builder"];
 
@@ -38,9 +42,9 @@ function useTypewriter(roles: string[]) {
 }
 
 /**
- * Hero shell (Part 2) — placeholder only. Left: pill, stacked headline,
- * rotating typewriter role, tagline, two buttons. Right: empty panel where
- * the Part 3 character will mount. GSAP drives the headline entrance
+ * Hero. Left: pill, stacked headline, rotating typewriter role, tagline,
+ * two buttons. Right: the live Part 3 character scene (Argon's Character3D,
+ * mounted client-only via HeroScene). GSAP drives the headline entrance
  * (delayed until the preloader has lifted).
  */
 export default function Hero() {
@@ -108,8 +112,8 @@ export default function Hero() {
       </div>
 
       <div className={styles.right}>
-        <div className={styles.panel} data-animate="panel">
-          <span>3D Character — Part 3</span>
+        <div className={styles.stage} data-animate="panel">
+          <HeroScene />
         </div>
       </div>
     </section>

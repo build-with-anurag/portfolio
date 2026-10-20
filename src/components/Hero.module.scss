@@ -116,24 +116,25 @@
   }
 }
 
-/* --- right column: Part 3 character placeholder --- */
+/* --- right column: Part 3 character stage (live 3D scene, borderless) --- */
 .right {
   display: flex;
   justify-content: center;
 }
 
-.panel {
+.stage {
   width: 100%;
   max-width: 480px;
   aspect-ratio: 4 / 5;
-  border: 1.5px dashed rgba(255, 255, 255, 0.28);
-  border-radius: 22px;
-  display: grid;
-  place-items: center;
-  color: $muted;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.02);
+}
+
+.scene {
+  width: 100%;
+  height: 100%;
+
+  canvas {
+    display: block;
+  }
 }
 
 @media (max-width: 880px) {
@@ -142,7 +143,7 @@
     padding-top: 104px;
   }
 
-  .panel {
+  .stage {
     max-width: 100%;
     aspect-ratio: 16 / 10;
   }
