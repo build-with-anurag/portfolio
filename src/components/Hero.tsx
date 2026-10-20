@@ -76,7 +76,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className={styles.hero} ref={rootRef}>
+    <section className={styles.hero} id="home" ref={rootRef}>
       <div className={styles.left}>
         <span className={styles.pill} data-animate="pill">
           Diploma CSE • Builder
