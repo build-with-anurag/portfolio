@@ -1,0 +1,88 @@
+@use "../app/variables" as *;
+
+.contact {
+  scroll-margin-top: 84px;
+  padding: 110px clamp(20px, 6vw, 84px) 100px;
+  text-align: center;
+  background:
+    radial-gradient(48% 52% at 50% 100%, rgba($blue, 0.1), transparent 65%),
+    $bg;
+}
+
+.heading {
+  font-size: clamp(2.4rem, 6vw, 3.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.accent {
+  color: $bright-blue;
+}
+
+.line {
+  margin-top: 18px;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: $muted;
+}
+
+.buttons {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.btnPrimary,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 0.97rem;
+  font-weight: 600;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btnPrimary {
+  background: $blue;
+  color: #fff;
+
+  &:hover {
+    background: #2f6fe0;
+  }
+}
+
+.btnGhost {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: $text;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+.footer {
+  padding: 28px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: $header-bg;
+  text-align: center;
+  font-size: 0.92rem;
+  color: $gray;
+}
+
+@media (max-width: 880px) {
+  .contact {
+    padding: 84px 20px;
+  }
+}
