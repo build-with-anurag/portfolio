@@ -1,0 +1,84 @@
+@use "../app/variables" as *;
+
+.section {
+  scroll-margin-top: 84px;
+  padding: 100px clamp(20px, 6vw, 84px);
+  background:
+    radial-gradient(44% 36% at 8% 30%, rgba($blue, 0.06), transparent 60%),
+    $bg;
+}
+
+.heading {
+  font-size: clamp(2rem, 5vw, 3.3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.accent {
+  color: $bright-blue;
+}
+
+.timeline {
+  position: relative;
+  margin-top: 50px;
+  padding-left: 38px;
+  list-style: none;
+  max-width: 760px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(
+      180deg,
+      rgba($bright-blue, 0.65),
+      rgba($bright-blue, 0.1)
+    );
+  }
+}
+
+.item {
+  position: relative;
+  padding-bottom: 40px;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: -34px;
+    top: 4px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: $bg;
+    border: 3px solid $bright-blue;
+    box-shadow: 0 0 0 5px rgba($bright-blue, 0.14);
+  }
+}
+
+.itemTitle {
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.itemText {
+  margin-top: 6px;
+  max-width: 62ch;
+  line-height: 1.7;
+  color: $muted;
+}
+
+@media (max-width: 880px) {
+  .section {
+    padding: 80px 20px;
+  }
+}
