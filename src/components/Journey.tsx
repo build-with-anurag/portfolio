@@ -18,7 +18,7 @@ const MILESTONES = [
     text: "Built an agricultural marketplace with team Krishi Mitra for Smart India Hackathon (SIH26033) — 36 pages, shipped live.",
   },
   {
-    title: "First Live Product",
+    title: "First Live Prototype",
     text: "Krishi Setu went live on the web; portfolio and dev identity (build-with-anurag) established.",
   },
   {

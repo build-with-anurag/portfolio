@@ -18,11 +18,11 @@ const caveat = Caveat({
 export const metadata: Metadata = {
   title: "Anurag Vishwakarma — CSE Student & Builder",
   description:
-    "Portfolio of Anurag Vishwakarma, Diploma CSE student and builder from Bhopal, India. Builder of Krishi Setu, a live agricultural marketplace.",
+    "Portfolio of Anurag Vishwakarma, Diploma CSE student and builder from Bhopal, India. Builder of Krishi Setu, a live prototype of an agricultural marketplace.",
   openGraph: {
     title: "Anurag Vishwakarma — CSE Student & Builder",
     description:
-      "Diploma CSE student from Bhopal who builds and ships real products. Builder of Krishi Setu, a live agricultural marketplace.",
+      "Diploma CSE student from Bhopal who builds and ships real products. Builder of Krishi Setu, a live prototype of an agricultural marketplace.",
     type: "website",
     siteName: "anurag.build",
     locale: "en_IN",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Anurag Vishwakarma — CSE Student & Builder",
     description:
-      "Diploma CSE student from Bhopal who builds and ships real products. Builder of Krishi Setu, a live agricultural marketplace.",
+      "Diploma CSE student from Bhopal who builds and ships real products. Builder of Krishi Setu, a live prototype of an agricultural marketplace.",
   },
 };
 

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import styles from "./About.module.scss";
 
 const STATS = [
-  { value: "1", label: "Live Product" },
+  { value: "1", label: "Live Prototype" },
   { value: "36", label: "Pages Shipped" },
   { value: "3", label: "Linux Distros Run" },
   { value: "1", label: "Workshop Led" },
@@ -59,8 +59,8 @@ export default function About() {
         <p className={styles.body} data-animate="about-text">
           I&apos;m a Diploma CSE student at S.V. Polytechnic College, Bhopal,
           and I learn by building real products — not by collecting tutorials.
-          My main build is <strong>Krishi Setu</strong>, a live agricultural
-          marketplace built with Next.js, with escrow-style payments,
+          My main build is <strong>Krishi Setu</strong>, a live prototype of
+          an agricultural marketplace built with Next.js, with escrow-style payments,
           image-based quality checks and hyperlocal discovery.
         </p>
 

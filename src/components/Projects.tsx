@@ -44,7 +44,7 @@ function Chips({ items }: { items: string[] }) {
 }
 
 /**
- * Part 5 — Projects. Krishi Setu leads as the featured live product;
+ * Part 5 — Projects. Krishi Setu leads as the featured live prototype;
  * this portfolio and the ShopMart practice build follow, honestly
  * labelled. Order and wording are deliberate: live work first.
  */
@@ -65,7 +65,7 @@ export default function Projects() {
         {/* Featured — Krishi Setu */}
         <article className={`${styles.card} ${styles.featured}`} data-animate="project-card">
           <span className={styles.badge}>
-            <span className={styles.badgeDot}>●</span> LIVE PRODUCT
+            <span className={styles.badgeDot}>●</span> LIVE PROTOTYPE
           </span>
           <h3 className={styles.cardTitle}>Krishi Setu</h3>
           <p className={styles.desc}>

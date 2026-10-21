@@ -97,7 +97,7 @@ export default function Hero() {
         </div>
 
         <p className={styles.tagline} data-animate="fade">
-          I build real products while I learn — one live product, shipped from
+          I build real products while I learn — one live prototype, shipped from
           Bhopal to the web.
         </p>
 
