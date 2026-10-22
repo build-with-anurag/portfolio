@@ -1,0 +1,14 @@
+@use "../app/variables" as *;
+
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 90; // above the floating header (50), below the preloader (100)
+  background: $gradient-progress;
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}

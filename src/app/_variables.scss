@@ -1,13 +1,17 @@
-$bg: #05070c;
-$bg-soft: #0a0e16;
-$header-bg: #04060a;
+// Design tokens — v3 fresh redesign.
+// Palette: near-black base, electric blue primary, gold secondary.
+$bg: #0a0e14;
+$bg-soft: #0e141f;
+$header-bg: #0a0e14;
 $text: #f4f6fb;
 $muted: #9aa3b2;
 $gray: #8a8f98;
 $blue: #3b82f6;
-$bright-blue: #4da3ff;
-$gold: #d4a94e;
+$bright-blue: #60a5fa;
+$gold: #f5b301;
 $pale: #e8e3d3;
 
-$gradient-badge: linear-gradient(135deg, #2563eb 0%, #7c9fd4 48%, #d4a94e 100%);
-$gradient-bar: linear-gradient(90deg, #2563eb 0%, #e8e3d3 55%, #d4a94e 100%);
+$gradient-badge: linear-gradient(135deg, #2563eb 0%, #3b82f6 45%, #f5b301 100%);
+$gradient-bar: linear-gradient(90deg, #3b82f6 0%, #f5b301 100%);
+$gradient-progress: linear-gradient(90deg, #3b82f6 0%, #f5b301 100%);
+$gradient-cta: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);

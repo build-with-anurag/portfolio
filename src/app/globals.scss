@@ -35,3 +35,9 @@ a {
 ::selection {
   background: rgba($blue, 0.35);
 }
+
+// Serif display type (Fraunces, wired as --font-display in layout.tsx).
+// Big headlines in later parts use this; body/UI stays on --font-sans.
+.font-display {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+}

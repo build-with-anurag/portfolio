@@ -13,9 +13,11 @@ const TechStackScene = dynamic(() => import("./TechStackScene"), {
 });
 
 /**
- * Part 4 — Tech Stack, MoncyDev-style: white logo balls with real physics
- * (React Three Fiber + rapier) that drop in, pile up, and can be pushed
- * around with the pointer. Heading reveal follows the site's GSAP
+ * Tech Stack (physics built in v2; re-skinned in v3 Part 4) —
+ * MoncyDev-style: white logo balls with real physics (React Three Fiber
+ * + rapier) that drop in, pile up, and can be pushed around with the
+ * pointer. Section header follows the v3 pattern (numbered eyebrow +
+ * Fraunces heading). Heading reveal follows the site's GSAP
  * data-animate pattern.
  */
 export default function TechStack() {
@@ -66,10 +68,10 @@ export default function TechStack() {
   return (
     <section className={styles.section} ref={rootRef} aria-label="Tech stack">
       <p className={styles.eyebrow} data-animate="stack-eyebrow">
-        <span className={styles.num}>02</span> Tech Stack
+        <span className={styles.num}>03 /</span> Tech Stack
       </p>
       <h2 className={styles.heading} data-animate="stack-heading">
-        MY TECH <span className={styles.accent}>STACK</span>
+        The tools I <span className={styles.accent}>build with.</span>
       </h2>
       <div className={styles.stage} data-animate="stack-stage" ref={stageRef} role="img" aria-label="Interactive physics balls, each printed with a technology logo from Anurag's stack">
         {stageInRange ? <TechStackScene /> : <div className={styles.stagePlaceholder} />}
