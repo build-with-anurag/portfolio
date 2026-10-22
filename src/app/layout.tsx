@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Caveat, Inter } from "next/font/google";
+import { Caveat, Fraunces, Inter } from "next/font/google";
 import "./globals.scss";
 import SmoothScroll from "@/components/SmoothScroll";
 
@@ -12,6 +12,13 @@ const inter = Inter({
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-script",
+  display: "swap",
+});
+
+// Serif display font for big headlines (hero, section titles in later parts).
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -41,7 +48,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${caveat.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${caveat.variable} ${fraunces.variable}`}
+    >
       <body>
         <SmoothScroll />
         {children}

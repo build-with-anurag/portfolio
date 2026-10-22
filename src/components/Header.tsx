@@ -1,50 +1,49 @@
+import Image from "next/image";
 import styles from "./Header.module.scss";
 
 const LINKS = [
-  { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
+  { label: "What I Do", href: "#what-i-do" },
   { label: "Projects", href: "#projects" },
   { label: "Journey", href: "#journey" },
   { label: "Contact", href: "#contact" },
 ];
 
 /**
- * Header — dark bar. Logo is a handwritten/script wordmark (lowercase,
- * white, thin underline swoosh), Vikas Patel style. Nav anchors jump to
- * the page sections (Lenis smooth-scrolls the native anchor jump).
+ * Header — Sarthak Sharma style floating pill nav: a glassy dark
+ * rounded-full bar floating with margin from the top of the viewport.
+ * Left: circular cut-out photo + handwritten lowercase wordmark
+ * (Vikas Patel style). Right: blue-gradient "Let's talk" pill.
+ * The header photo is a placeholder asset (public/header-photo.jpg).
  */
 export default function Header() {
   return (
-    <header className={styles.header}>
-      <a href="#home" className={styles.logo} aria-label="Anurag Vishwakarma — home">
-        <span className={styles.wordmark}>anurag vishwakarma</span>
-        <svg
-          className={styles.swoosh}
-          viewBox="0 0 220 12"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M3 8 C 60 2, 150 2, 217 6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
+    <div className={styles.wrap}>
+      <header className={styles.pill}>
+        <a href="#home" className={styles.logo} aria-label="Anurag Vishwakarma — home">
+          <Image
+            src="/header-photo.jpg"
+            alt=""
+            width={72}
+            height={72}
+            className={styles.photo}
+            priority
           />
-        </svg>
-      </a>
+          <span className={styles.wordmark}>anurag</span>
+        </a>
 
-      <nav className={styles.nav} aria-label="Primary">
-        {LINKS.map((link, i) => (
-          <a
-            key={link.label}
-            href={link.href}
-            className={i === 0 ? styles.active : undefined}
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
-    </header>
+        <nav className={styles.nav} aria-label="Primary">
+          {LINKS.map((link) => (
+            <a key={link.label} href={link.href}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <a href="#contact" className={styles.cta}>
+          Let&rsquo;s talk
+        </a>
+      </header>
+    </div>
   );
 }

@@ -1,0 +1,56 @@
+@use "../app/variables" as *;
+
+// Hidden by default; the component reveals them only after it confirms a
+// fine pointer, by adding .enabled to <body>. Native cursor stays visible.
+.dot,
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 200;
+  will-change: transform;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: $bright-blue;
+  box-shadow:
+    0 0 10px 2px rgba($blue, 0.85),
+    0 0 26px 8px rgba($blue, 0.35);
+}
+
+.ring {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba($blue, 0.55);
+  box-shadow: 0 0 18px rgba($blue, 0.25);
+  transition:
+    width 0.22s ease,
+    height 0.22s ease,
+    border-color 0.22s ease,
+    opacity 0.3s ease;
+}
+
+body.enabled {
+  .dot,
+  .ring {
+    opacity: 1;
+  }
+}
+
+.ring.grow {
+  width: 52px;
+  height: 52px;
+  border-color: rgba($gold, 0.75);
+}
+
+@media (pointer: coarse) {
+  .dot,
+  .ring {
+    display: none;
+  }
+}
