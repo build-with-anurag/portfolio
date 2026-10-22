@@ -10,7 +10,10 @@ import WhatIDo from "@/components/WhatIDo";
 import TechStack from "@/components/TechStack";
 import Projects from "@/components/Projects";
 import Journey from "@/components/Journey";
+import HowIWork from "@/components/HowIWork";
 import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
+import QuickActions from "@/components/QuickActions";
 import BackToTop from "@/components/BackToTop";
 import ResumeCorner from "@/components/ResumeCorner";
 
@@ -30,8 +33,11 @@ export default function Home() {
         <TechStack />
         <Projects />
         <Journey />
+        <HowIWork />
         <Contact />
       </main>
+      <Footer />
+      <QuickActions />
       <BackToTop />
       <ResumeCorner />
     </>

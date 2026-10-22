@@ -1,0 +1,158 @@
+@use "../app/variables" as *;
+
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    radial-gradient(40% 60% at 88% 0%, rgba($blue, 0.05), transparent 60%),
+    $bg-soft;
+  padding: 72px clamp(20px, 6vw, 84px) 0;
+}
+
+.inner {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr 1.1fr 1.15fr;
+  gap: clamp(28px, 4vw, 52px);
+  padding-bottom: 56px;
+}
+
+// --- Brand column ---
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+  margin-bottom: 18px;
+}
+
+.photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba($gold, 0.75);
+}
+
+.wordmark {
+  font-family: var(--font-script), cursive;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transform: translateY(-1px);
+}
+
+.tagline {
+  color: $muted;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  max-width: 30ch;
+  margin-bottom: 22px;
+}
+
+.socials {
+  display: flex;
+  gap: 10px;
+}
+
+.socialBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  color: $muted;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+
+  &:hover {
+    color: $gold;
+    border-color: rgba($gold, 0.6);
+    transform: translateY(-2px);
+  }
+}
+
+// --- Link columns ---
+
+.colTitle {
+  color: $gray;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: $muted;
+    font-size: 0.94rem;
+    text-decoration: none;
+    transition:
+      color 0.25s ease,
+      transform 0.25s ease;
+
+    &:hover {
+      color: $bright-blue;
+      transform: translateX(3px);
+    }
+  }
+}
+
+.plain {
+  color: $muted;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+// --- Bottom bar ---
+
+.bottomBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 22px 0 26px;
+  color: $gray;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomBar {
+    flex-direction: column;
+  }
+}

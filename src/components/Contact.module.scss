@@ -1,20 +1,24 @@
 @use "../app/variables" as *;
 
-.contact {
+.section {
   scroll-margin-top: 84px;
-  padding: 110px clamp(20px, 6vw, 84px) 100px;
-  text-align: center;
+  padding: 100px clamp(20px, 6vw, 84px) 120px;
   background:
-    radial-gradient(48% 52% at 50% 100%, rgba($blue, 0.1), transparent 65%),
+    radial-gradient(52% 44% at 50% 0%, rgba($blue, 0.07), transparent 62%),
     $bg;
 }
 
+.inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  text-align: center;
+}
+
 .eyebrow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 26px;
   color: $gray;
   font-size: 0.76rem;
   font-weight: 700;
@@ -24,81 +28,118 @@
   .num {
     color: $bright-blue;
   }
+
+  &::before,
+  &::after {
+    content: "";
+    width: 54px;
+    height: 1px;
+  }
+
+  &::before {
+    background: linear-gradient(270deg, rgba($bright-blue, 0.55), transparent);
+  }
+
+  &::after {
+    background: linear-gradient(90deg, rgba($bright-blue, 0.55), transparent);
+  }
 }
+
 .heading {
-  font-size: clamp(2.4rem, 6vw, 3.9rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-size: clamp(2.9rem, 8vw, 6.1rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
   color: #fff;
+  max-width: 14ch;
+  margin: 0 auto 26px;
 }
 
 .accent {
-  color: $bright-blue;
+  font-style: italic;
+  background: linear-gradient(
+    94deg,
+    $bright-blue 0%,
+    $blue 42%,
+    $gold 105%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .line {
-  margin-top: 18px;
-  font-size: 1.08rem;
-  line-height: 1.65;
+  max-width: 52ch;
+  margin: 0 auto 40px;
   color: $muted;
+  font-size: clamp(1rem, 1.6vw, 1.13rem);
+  line-height: 1.65;
 }
 
 .buttons {
-  margin-top: 36px;
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 14px;
+  margin-bottom: 26px;
 }
 
 .btnPrimary,
 .btnGhost {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 13px 24px;
-  border-radius: 10px;
-  font-size: 0.97rem;
+  gap: 9px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 0.98rem;
   font-weight: 600;
+  text-decoration: none;
   transition:
-    transform 0.15s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .btnPrimary {
-  background: $blue;
   color: #fff;
+  background: $gradient-cta;
+  box-shadow: 0 10px 30px rgba($blue, 0.35);
 
   &:hover {
-    background: #2f6fe0;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba($blue, 0.45);
   }
 }
 
 .btnGhost {
-  border: 1px solid rgba(255, 255, 255, 0.22);
   color: $text;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.02);
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.45);
+    transform: translateY(-2px);
+    border-color: rgba($bright-blue, 0.65);
+    color: $bright-blue;
   }
 }
 
-.footer {
-  padding: 28px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: $header-bg;
-  text-align: center;
-  font-size: 0.92rem;
-  color: $gray;
-}
+.address {
+  a {
+    color: $muted;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba($muted, 0.4);
+    padding-bottom: 2px;
+    transition:
+      color 0.25s ease,
+      border-color 0.25s ease;
 
-@media (max-width: 880px) {
-  .contact {
-    padding: 84px 20px;
+    &:hover {
+      color: $gold;
+      border-color: rgba($gold, 0.6);
+    }
   }
 }

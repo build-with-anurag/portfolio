@@ -1,0 +1,134 @@
+@use "../app/variables" as *;
+
+// Right-edge stack, bottom-up: RESUME pill (bottom 20) → back-to-top
+// (bottom 92, 44px tall) → this widget's toggle at bottom 148 so the
+// three never overlap. The menu expands upward from the toggle.
+.wrap {
+  position: fixed;
+  right: 22px;
+  bottom: 148px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+
+  .wrap[data-open="true"] & {
+    pointer-events: auto;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(10px) scale(0.92);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+  .wrap[data-open="true"] & {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba($bg-soft, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: $text;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.chipSoon {
+  color: $gold;
+  border-color: rgba($gold, 0.55);
+}
+
+.actionBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba($bg-soft, 0.9);
+  border: 1px solid rgba($blue, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    border-color: rgba($gold, 0.7);
+    color: $gold;
+    transform: translateY(-1px);
+  }
+}
+
+.toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: $gradient-cta;
+  border: 1px solid rgba($bright-blue, 0.5);
+  box-shadow: 0 10px 26px rgba($blue, 0.4);
+  cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+
+  svg {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba($blue, 0.5);
+  }
+}
+
+.toggleOpen {
+  svg {
+    transform: rotate(45deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    right: 16px;
+    bottom: 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .toggle,
+  .toggle svg {
+    transition: none;
+  }
+}
