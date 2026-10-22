@@ -6,6 +6,7 @@ import SocialRail from "@/components/SocialRail";
 import Hero from "@/components/Hero";
 import StatsBand from "@/components/StatsBand";
 import About from "@/components/About";
+import WhatIDo from "@/components/WhatIDo";
 import TechStack from "@/components/TechStack";
 import Projects from "@/components/Projects";
 import Journey from "@/components/Journey";
@@ -25,6 +26,7 @@ export default function Home() {
         <Hero />
         <StatsBand />
         <About />
+        <WhatIDo />
         <TechStack />
         <Projects />
         <Journey />
