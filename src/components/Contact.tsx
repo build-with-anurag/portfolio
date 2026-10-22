@@ -6,8 +6,9 @@ import { ArrowUpRight, Mail } from "lucide-react";
 import styles from "./Contact.module.scss";
 
 /**
- * Part 7 — Contact + footer. One clear call to action, three direct
- * channels, and the colophon strip that closes the page.
+ * Part 6 (v3) — Contact. Giant Fraunces headline at Vikas/Rajesh scale,
+ * one honest sub-line, and two clear channels: email and LinkedIn.
+ * No phone number, no form — the gated contact form comes later.
  */
 export default function Contact() {
   const rootRef = useRef<HTMLElement>(null);
@@ -15,6 +16,7 @@ export default function Contact() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const targets = root.querySelectorAll("[data-animate]");
     gsap.set(targets, { opacity: 0, y: 26 });
     const io = new IntersectionObserver(
@@ -37,31 +39,24 @@ export default function Contact() {
   }, []);
 
   return (
-    <>
-      <section className={styles.contact} id="contact" ref={rootRef}>
+    <section className={styles.section} id="contact" ref={rootRef}>
+      <div className={styles.inner}>
         <p className={styles.eyebrow} data-animate="contact-eyebrow">
-          <span className={styles.num}>05</span> Contact
+          <span className={styles.num}>07</span> / Contact
         </p>
         <h2 className={styles.heading} data-animate="contact-heading">
-          Let&apos;s Build <span className={styles.accent}>Something</span>
+          Let&rsquo;s build something <span className={styles.accent}>real.</span>
         </h2>
         <p className={styles.line} data-animate="contact-line">
-          Open to internships, freelance builds and collaborations.
+          A third-semester CSE diploma student — open to internships,
+          freelance builds and interesting collaborations.
         </p>
         <div className={styles.buttons} data-animate="contact-buttons">
           <a
             className={styles.btnPrimary}
             href="mailto:anurag.build.official@gmail.com"
           >
-            <Mail size={17} strokeWidth={2.2} /> Email
-          </a>
-          <a
-            className={styles.btnGhost}
-            href="https://github.com/build-with-anurag"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub <ArrowUpRight size={16} strokeWidth={2.2} />
+            <Mail size={17} strokeWidth={2.2} /> Email me
           </a>
           <a
             className={styles.btnGhost}
@@ -72,12 +67,12 @@ export default function Contact() {
             LinkedIn <ArrowUpRight size={16} strokeWidth={2.2} />
           </a>
         </div>
-      </section>
-
-      <footer className={styles.footer}>
-        © 2026 Anurag Vishwakarma • anurag.build — Built with Next.js, from
-        Bhopal to the web.
-      </footer>
-    </>
+        <p className={styles.address} data-animate="contact-address">
+          <a href="mailto:anurag.build.official@gmail.com">
+            anurag.build.official@gmail.com
+          </a>
+        </p>
+      </div>
+    </section>
   );
 }
