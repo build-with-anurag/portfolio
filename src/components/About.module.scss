@@ -2,14 +2,15 @@
 
 .about {
   scroll-margin-top: 84px;
-  padding: 110px clamp(20px, 6vw, 84px);
+  padding: 84px clamp(20px, 6vw, 84px) 110px;
   background:
     radial-gradient(50% 42% at 12% 18%, rgba($blue, 0.07), transparent 62%),
     $bg;
 }
 
 .inner {
-  max-width: 900px;
+  max-width: 1160px;
+  margin: 0 auto;
 }
 
 .eyebrow {
@@ -34,24 +35,75 @@
     background: linear-gradient(90deg, rgba($bright-blue, 0.55), transparent);
   }
 }
+
 .heading {
-  font-size: clamp(2.3rem, 5.4vw, 3.6rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-size: clamp(2.2rem, 4.8vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
   color: #fff;
+  max-width: 22ch;
 }
 
 .accent {
-  color: $bright-blue;
+  font-style: italic;
+  background: $gradient-cta;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cols {
+  margin-top: 52px;
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: start;
+}
+
+.portrait {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 24px 60px rgba($blue, 0.12);
+  aspect-ratio: 3 / 4;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 22%;
+    display: block;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 52%,
+      rgba($bg, 0.55) 82%,
+      rgba($bg, 0.92) 100%
+    );
+    pointer-events: none;
+  }
+}
+
+.right {
+  min-width: 0;
 }
 
 .body {
-  margin-top: 24px;
-  max-width: 68ch;
   font-size: 1.05rem;
   line-height: 1.75;
   color: $muted;
+
+  & + .body {
+    margin-top: 18px;
+  }
 
   strong {
     color: $text;
@@ -59,41 +111,125 @@
   }
 }
 
-.stats {
-  margin-top: 46px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+.keyPhrase {
+  color: $bright-blue;
+  font-weight: 600;
+}
+
+// --- Interactive tabs (Build / Learn / Teach) ---
+
+.tabs {
+  margin-top: 34px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+}
+
+.tabList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: $muted;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+
+  &:hover {
+    color: $text;
+    border-color: rgba($bright-blue, 0.45);
+  }
+}
+
+.tabActive {
+  color: #fff;
+  border-color: transparent;
+  background: $gradient-cta;
+}
+
+.panel {
+  margin-top: 20px;
+  min-height: 158px;
+}
+
+.panelBody {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: $muted;
+  max-width: 62ch;
+
+  strong {
+    color: $text;
+    font-weight: 600;
+  }
+}
+
+.chipRow {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .chip {
-  padding: 20px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  background: $bg-soft;
-}
-
-.value {
-  font-size: 1.9rem;
-  font-weight: 800;
-  line-height: 1;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px dashed rgba($bright-blue, 0.4);
   color: $bright-blue;
-}
-
-.label {
-  margin-top: 9px;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: $muted;
+}
+
+// --- Principle chips ---
+
+.principles {
+  margin-top: 52px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.principle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: $bg-soft;
+  color: $text;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  svg {
+    color: $gold;
+  }
 }
 
 @media (max-width: 880px) {
   .about {
-    padding: 84px 20px;
+    padding: 64px 20px 84px;
   }
 
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
+  .cols {
+    grid-template-columns: 1fr;
+    margin-top: 38px;
+  }
+
+  .portrait {
+    max-width: 420px;
+  }
+
+  .panel {
+    min-height: 0;
   }
 }
