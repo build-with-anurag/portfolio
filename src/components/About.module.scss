@@ -62,6 +62,10 @@
   align-items: start;
 }
 
+.leftCol {
+  min-width: 0;
+}
+
 .portrait {
   position: relative;
   border-radius: 22px;
@@ -189,12 +193,12 @@
   letter-spacing: 0.02em;
 }
 
-// --- Principle chips ---
+// --- Principle chips (stacked directly under the portrait) ---
 
 .principles {
-  margin-top: 52px;
-  display: flex;
-  flex-wrap: wrap;
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -202,16 +206,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
+  padding: 9px 14px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.11);
   background: $bg-soft;
   color: $text;
   font-size: 0.88rem;
   font-weight: 600;
+  white-space: nowrap;
 
   svg {
     color: $gold;
+    flex-shrink: 0;
   }
 }
 
@@ -225,8 +231,17 @@
     margin-top: 38px;
   }
 
+  .leftCol {
+    max-width: 420px;
+  }
+
   .portrait {
     max-width: 420px;
+  }
+
+  .principle {
+    padding: 8px 11px;
+    font-size: 0.82rem;
   }
 
   .panel {
