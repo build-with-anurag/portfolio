@@ -26,7 +26,11 @@ const MILESTONES = [
   },
   {
     title: "Going Deep on Systems",
-    text: "The diploma years: Garuda → Ubuntu → Fedora → Arch Linux, vanilla with Hyprland. Before the diploma even began, he had corrupted Windows three times — and reinstalled it himself, every time.",
+    text: "The diploma years: Garuda → Ubuntu → Fedora → Arch Linux, vanilla with Hyprland. Before the diploma even began, he had corrupted Windows three times — and reinstalled it himself, every time. The hopping ran from class 10 to my second semester — paused for now, not done for good.",
+  },
+  {
+    title: "The Custom ROM Phase",
+    text: "First semester. My daily driver was a Redmi Note 8, and stock software wasn't enough — no updates, no new features, too much curiosity. I flashed Project Infinity X, Pixel Experience, Pixel OS and LineageOS, got strong Play Integrity passing, and when a ROM switch soft-bricked the phone once, I brought it back myself.",
   },
   {
     title: "The Internship That Taught Me to Teach Myself",
