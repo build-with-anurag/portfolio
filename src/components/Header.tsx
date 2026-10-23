@@ -14,7 +14,7 @@ const LINKS = [
  * rounded-full bar floating with margin from the top of the viewport.
  * Left: circular cut-out photo + handwritten lowercase wordmark
  * (Vikas Patel style). Right: blue-gradient "Let's talk" pill.
- * The header photo is a placeholder asset (public/header-photo.jpg).
+ * The header photo is a placeholder asset (public/header-photo.webp).
  */
 export default function Header() {
   return (
@@ -22,7 +22,7 @@ export default function Header() {
       <header className={styles.pill}>
         <a href="#home" className={styles.logo} aria-label="Anurag Vishwakarma — home">
           <Image
-            src="/header-photo.jpg"
+            src="/header-photo.webp"
             alt=""
             width={72}
             height={72}

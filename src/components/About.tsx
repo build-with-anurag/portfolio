@@ -137,14 +137,25 @@ export default function About() {
         </h2>
 
         <div className={styles.cols}>
-          <figure className={styles.portrait} data-animate>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/about-photo.jpg"
-              alt="Portrait of Anurag Vishwakarma"
-              loading="lazy"
-            />
-          </figure>
+          <div className={styles.leftCol}>
+            <figure className={styles.portrait} data-animate>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/about-photo.webp"
+                alt="Portrait of Anurag Vishwakarma"
+                loading="lazy"
+              />
+            </figure>
+
+            <div className={styles.principles} data-animate>
+              {PRINCIPLES.map((principle) => (
+                <span className={styles.principle} key={principle.text}>
+                  <principle.icon size={15} strokeWidth={2} />
+                  {principle.text}
+                </span>
+              ))}
+            </div>
+          </div>
 
           <div className={styles.right}>
             <p className={styles.body} data-animate>
@@ -215,15 +226,6 @@ export default function About() {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className={styles.principles} data-animate>
-          {PRINCIPLES.map((principle) => (
-            <span className={styles.principle} key={principle.text}>
-              <principle.icon size={15} strokeWidth={2} />
-              {principle.text}
-            </span>
-          ))}
         </div>
       </div>
     </section>

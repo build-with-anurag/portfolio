@@ -63,7 +63,7 @@ export default function Footer() {
           <div className={styles.brand}>
             <a href="#home" className={styles.logo} aria-label="Anurag Vishwakarma — home">
               <Image
-                src="/header-photo.jpg"
+                src="/header-photo.webp"
                 alt=""
                 width={72}
                 height={72}

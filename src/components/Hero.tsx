@@ -289,10 +289,11 @@ export default function Hero() {
             <div className={styles.meltX}>
               <div className={styles.meltY} data-animate="portrait">
                 <Image
-                  src="/hero-photo.jpg"
+                  src="/hero-photo.webp"
                   alt="Portrait of Anurag Vishwakarma"
                   fill
                   priority
+                  fetchPriority="high"
                   sizes="(max-width: 1023px) 100vw, 40vw"
                   className={styles.portraitImg}
                 />
