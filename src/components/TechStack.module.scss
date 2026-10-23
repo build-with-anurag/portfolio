@@ -68,6 +68,91 @@
   height: 100%;
 }
 
+/* The WebGL canvas overlays the stage; the chip grid sits beneath it
+   until the scene signals it is ready, then the canvas fades in. */
+.stageCanvas {
+  position: absolute;
+  inset: 0;
+  animation: stageIn 0.6s ease both;
+
+  canvas {
+    display: block;
+  }
+}
+
+@keyframes stageIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Static chip grid — loading state + no-WebGL fallback. Same logo
+   artwork as the balls, as soft white chips with a gentle bob. */
+.chipGrid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(10px, 2.2vw, 22px);
+  padding: clamp(18px, 4vw, 44px);
+}
+
+.chipBall {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: clamp(58px, 9vw, 96px);
+  height: clamp(58px, 9vw, 96px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    #ffffff 0%,
+    #eef1f6 55%,
+    #cfd6e2 100%
+  );
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.35),
+    inset 0 -6px 12px rgba(20, 30, 60, 0.12);
+  animation: chipBob 5.5s ease-in-out infinite alternate;
+
+  /* The ball textures are 2:1 sphere wraps with the logo printed at
+     the 1/4 and 3/4 marks — cover-crop onto the first print and zoom
+     in, so the chip shows one large logo like the balls do. */
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 24% 50%;
+    transform: scale(1.5);
+    display: block;
+  }
+}
+
+@keyframes chipBob {
+  from {
+    transform: translateY(-4px);
+  }
+  to {
+    transform: translateY(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chipBall {
+    animation: none;
+  }
+
+  .stageCanvas {
+    animation: none;
+  }
+}
+
 @media (max-width: 880px) {
   .section {
     padding: 80px 20px 90px;
