@@ -6,15 +6,21 @@
   min-height: 100svh;
   overflow: hidden;
   background:
-    radial-gradient(55% 42% at 50% 30%, rgba($blue, 0.12), transparent 70%),
+    radial-gradient(52% 46% at 76% 30%, rgba($blue, 0.13), transparent 70%),
     $bg;
 }
 
-/* --- dotted particle waves (full-bleed canvas behind everything) --- */
+/* --- dotted particle waves, confined behind the portrait zone (right) --- */
 .waves {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 100%;
   z-index: 0;
+  opacity: 0.85;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 26%);
+  mask-image: linear-gradient(to right, transparent 0, black 26%);
 }
 
 .wavesCanvas {
@@ -23,132 +29,30 @@
   height: 100%;
 }
 
-/* --- micro-labels in the corners --- */
-.label {
-  position: absolute;
-  z-index: 4;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: $gray;
-  white-space: nowrap;
-}
-
-.labelTL {
-  top: 108px;
-  left: clamp(20px, 4vw, 56px);
-}
-
-.labelTR {
-  top: 108px;
-  right: clamp(20px, 4vw, 56px);
-  text-align: right;
-}
-
-.labelBL {
-  bottom: 26px;
-  left: clamp(20px, 4vw, 56px);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: color 0.25s ease;
-
-  svg {
-    animation: cueBob 2.2s ease-in-out infinite;
-  }
-
-  &:hover {
-    color: $bright-blue;
-  }
-}
-
-@keyframes cueBob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(4px);
-  }
-}
-
-/* --- center stage --- */
+/* --- spread stage: copy left (~46%), portrait zone right --- */
 .stage {
   position: relative;
   z-index: 1;
   min-height: 100vh;
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 96px 20px 56px;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) 1fr;
 }
 
-/* Portrait: edges melt into the background via a radial mask; a soft blue
-   halo sits behind it and a bottom "seat" gradient grounds it in the page. */
-.portraitWrap {
+/* --- left copy block --- */
+.copy {
   position: relative;
-  z-index: 1;
-}
-
-.halo {
-  position: absolute;
-  inset: -18% -30%;
-  background: radial-gradient(
-    50% 50% at 50% 45%,
-    rgba($blue, 0.22),
-    transparent 70%
-  );
-  filter: blur(10px);
-  pointer-events: none;
-}
-
-.portrait {
-  position: relative;
-  width: min(430px, 78vw);
-  aspect-ratio: 43 / 45;
-  -webkit-mask-image: radial-gradient(
-    74% 70% at 50% 44%,
-    black 56%,
-    transparent 78%
-  );
-  mask-image: radial-gradient(74% 70% at 50% 44%, black 56%, transparent 78%);
-}
-
-.portraitImg {
-  object-fit: cover;
-  object-position: center 22%;
-  filter: brightness(0.94) contrast(1.05) saturate(1.03);
-}
-
-.portraitSeat {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 58%,
-    rgba($bg, 0.55) 84%,
-    rgba($bg, 0.92) 98%
-  );
-  pointer-events: none;
-}
-
-/* --- giant serif name overlapping the portrait's lower third --- */
-.nameWrap {
-  position: relative;
-  z-index: 2;
-  margin-top: clamp(-118px, -13vh, -76px);
-  text-align: center;
-  pointer-events: none;
+  top: -2.5vh; /* centred, lifted slightly above the middle */
+  z-index: 3;
+  align-self: center;
+  padding: 120px 12px 90px clamp(20px, 4vw, 56px);
 }
 
 .name {
   font-family: var(--font-display), Georgia, "Times New Roman", serif;
-  font-size: clamp(3.2rem, 10vw, 7.4rem);
+  font-size: clamp(4.5rem, 8.5vw, 9rem);
   font-weight: 600;
-  line-height: 0.98;
+  line-height: 0.96;
   letter-spacing: -0.01em;
   color: #fff;
   text-shadow: 0 6px 44px rgba(0, 0, 0, 0.55);
@@ -156,6 +60,7 @@
 
 .nameLine {
   display: block;
+  white-space: nowrap;
 }
 
 .nameItalic {
@@ -168,18 +73,37 @@
   color: transparent;
 }
 
-/* --- foreground copy under the name --- */
-.fg {
-  position: relative;
-  z-index: 2;
+/* Tagline as a clear sub-line under the name (concept mock). */
+.tagline {
+  margin-top: 22px;
+  max-width: 480px;
+  font-size: clamp(1.15rem, 1.6vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.5;
+  color: #c9d2e6;
+}
+
+.availability {
+  margin-top: 14px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $muted;
+}
+
+.availDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $gold;
+  box-shadow: 0 0 10px rgba($gold, 0.8);
+  flex-shrink: 0;
 }
 
 .roleLine {
-  margin-top: 20px;
+  margin-top: 24px;
   min-height: 1.5em;
   font-size: clamp(1.1rem, 2.2vw, 1.4rem);
   font-weight: 600;
@@ -198,20 +122,11 @@
   }
 }
 
-.tagline {
-  margin-top: 10px;
-  max-width: 52ch;
-  font-size: 1.02rem;
-  line-height: 1.6;
-  color: $muted;
-}
-
 .actions {
-  margin-top: 26px;
+  margin-top: 28px;
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 .btnPrimary,
@@ -219,8 +134,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 13px 24px;
-  border-radius: 999px;
+  padding: 14px 26px;
+  border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 600;
   transition:
@@ -235,44 +150,137 @@
 }
 
 .btnPrimary {
-  background: $gradient-cta;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba($blue, 0.35);
+  background: linear-gradient(135deg, #ffc21f 0%, $gold 55%, #d99a00 100%);
+  color: #191204;
+  box-shadow: 0 10px 30px rgba($gold, 0.28);
 
   &:hover {
-    background: linear-gradient(135deg, #2f6fe0 0%, #4a8cf5 100%);
+    background: linear-gradient(135deg, #ffd34d 0%, #f7bc0d 55%, #e3a300 100%);
   }
 }
 
 .btnGhost {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: $text;
+  border: 1px solid rgba($gold, 0.55);
+  color: $gold;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.5);
-    color: #fff;
+    border-color: $gold;
+    background: rgba($gold, 0.08);
+    color: #ffd34d;
   }
 }
 
-/* --- floating glass stat cards (desktop, around the portrait) --- */
-.cards {
+/* --- portrait zone (right) --- */
+.portraitZone {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-width: 0;
+  /* Right gutter of open background where the stat chips stack (mock). */
+  padding-right: clamp(168px, 13vw, 212px);
+}
+
+.portraitWrap {
+  position: relative;
+  width: min(37vw, 620px);
+  height: 94svh;
+}
+
+.halo {
   position: absolute;
-  inset: 0;
-  z-index: 3;
+  inset: -10% -18%;
+  z-index: 0;
+  background: radial-gradient(
+    50% 50% at 50% 45%,
+    rgba($blue, 0.2),
+    transparent 70%
+  );
+  filter: blur(10px);
   pointer-events: none;
 }
 
-.card {
+/* Edge melt: the outer wrapper fades the photo's left edge into the page,
+   the inner wrapper fades top and bottom. Nested masks intersect, so no
+   hard rectangle edge of the grey studio backdrop ever shows. */
+.meltX {
   position: absolute;
-  max-width: 196px;
+  inset: 0;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 30%,
+    black 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 30%,
+    black 88%,
+    transparent 100%
+  );
 }
 
-.cardInner {
+.meltY {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 7%,
+    black 86%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 7%,
+    black 86%,
+    transparent 100%
+  );
+}
+
+.portraitImg {
+  object-fit: cover;
+  object-position: 80% 0%;
+  filter: brightness(0.94) contrast(1.05) saturate(1.03);
+}
+
+/* Particle dissolve field spilling left from the portrait's inner edge
+   (SVG dot field of glowing blue/gold dots). */
+.dissolve {
+  position: absolute;
+  top: 0;
+  left: -190px;
+  width: 320px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dissolveSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- floating glass stat chips stacked down the portrait's right side,
+   over the open background gutter (concept mock) --- */
+.chip {
+  position: absolute;
+  right: 22px;
+  z-index: 3;
+}
+
+.chipCard {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 13px 17px;
-  border-radius: 16px;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 15px;
+  border-radius: 13px;
   background: rgba(255, 255, 255, 0.055);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
@@ -280,136 +288,299 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  animation: drift 6.5s ease-in-out infinite alternate;
+  animation: bob 6.5s ease-in-out infinite alternate;
 }
 
-.card1 {
-  left: clamp(12px, 7vw, 130px);
-  top: 21%;
+.chip1 {
+  top: 24%;
+
+  .chipCard {
+    animation-duration: 6.5s;
+  }
+
+  .chipIcon {
+    color: $bright-blue;
+  }
 }
 
-.card2 {
-  right: clamp(12px, 6vw, 110px);
-  top: 33%;
+.chip2 {
+  top: 46%;
 
-  .cardInner {
+  .chipCard {
     animation-duration: 7.5s;
     animation-delay: -2s;
   }
-}
 
-.card3 {
-  left: clamp(12px, 9vw, 160px);
-  bottom: 23%;
-
-  .cardInner {
-    animation-duration: 8.5s;
-    animation-delay: -4s;
+  .chipIcon {
+    color: $gold;
   }
 }
 
-@keyframes drift {
+.chip3 {
+  top: 66%;
+
+  .chipCard {
+    animation-duration: 8.5s;
+    animation-delay: -4s;
+  }
+
+  .chipIcon {
+    color: $bright-blue;
+  }
+}
+
+@keyframes bob {
   from {
     transform: translateY(-6px);
   }
   to {
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 }
 
-.cardValue {
+.chipText {
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: $text;
+  white-space: nowrap;
+}
+
+.chipValue {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   font-weight: 600;
   line-height: 1.05;
   color: #fff;
 }
 
-.cardLabel {
-  font-size: 0.78rem;
+.chipLabel {
+  font-size: 0.76rem;
   font-weight: 500;
   line-height: 1.35;
   color: $muted;
 }
 
-/* --- stat cards on mobile: a compact row under the buttons --- */
-.cardsMobile {
+/* --- stat chips on mobile: a compact row under the buttons --- */
+.chipsMobile {
   display: none;
 }
 
-@media (max-width: 880px) {
-  .labelTR {
-    display: none;
+.chipMobile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: left;
+
+  .chipValue {
+    font-size: 1.25rem;
   }
 
-  .labelTL {
-    top: 92px;
+  .chipLabel {
+    font-size: 0.7rem;
+  }
+}
+
+/* --- micro-labels along the bottom --- */
+.label {
+  position: absolute;
+  z-index: 4;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: $gray;
+  white-space: nowrap;
+}
+
+.labelBL {
+  bottom: 26px;
+  left: clamp(20px, 4vw, 56px);
+}
+
+.labelCue {
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.25s ease;
+
+  svg {
+    animation: cueBob 2.2s ease-in-out infinite;
   }
 
-  .labelBL {
-    display: none;
+  &:hover {
+    color: $bright-blue;
+  }
+}
+
+.labelBR {
+  bottom: 26px;
+  /* left of the fixed RESUME / back-to-top stack in the corner */
+  right: 178px;
+}
+
+@keyframes cueBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* --- narrower desktops: slightly tighter chips in the right gutter --- */
+@media (max-width: 1280px) {
+  .chip {
+    right: 16px;
+  }
+
+  .chipText {
+    font-size: 0.8rem;
+  }
+}
+
+/* --- stacked layout below desktop: portrait first, no pin --- */
+@media (max-width: 1023px) {
+  .hero {
+    background:
+      radial-gradient(70% 40% at 50% 16%, rgba($blue, 0.12), transparent 70%),
+      $bg;
+  }
+
+  .waves {
+    width: 100%;
+    opacity: 0.45;
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 97%);
+    mask-image: linear-gradient(to bottom, black 55%, transparent 97%);
   }
 
   .stage {
-    padding-top: 104px;
-    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 96px 0 58px;
   }
 
-  .portrait {
-    width: min(290px, 72vw);
+  .portraitZone {
+    order: 1;
+    display: block;
+    padding-right: 0;
   }
 
-  .nameWrap {
-    margin-top: clamp(-84px, -9vh, -52px);
+  .portraitWrap {
+    width: 100%;
+    height: 60svh;
   }
 
-  .name {
-    font-size: clamp(2.9rem, 14.5vw, 4.4rem);
+  .meltX {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 7%,
+      black 93%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 7%,
+      black 93%,
+      transparent 100%
+    );
   }
 
-  .cards {
+  .meltY {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 74%,
+      transparent 99%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 74%,
+      transparent 99%
+    );
+  }
+
+  .portraitImg {
+    object-position: 50% 0%;
+  }
+
+  .dissolve {
     display: none;
   }
 
-  .cardsMobile {
+  .chip {
+    display: none;
+  }
+
+  .copy {
+    order: 2;
+    top: 0;
+    align-self: stretch;
+    padding: 24px 20px 0;
+  }
+
+  .name {
+    font-size: clamp(3.1rem, 13.5vw, 5rem);
+  }
+
+  .tagline {
+    margin-top: 16px;
+    font-size: 1.08rem;
+  }
+
+  .roleLine {
+    margin-top: 18px;
+  }
+
+  .actions {
+    margin-top: 24px;
+  }
+
+  .chipsMobile {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 28px;
+    margin-top: 26px;
     width: 100%;
     max-width: 430px;
   }
 
-  .cardMobile {
-    flex: 1 1 108px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 11px 13px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.055);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    text-align: left;
+  .chipMobile {
+    flex: 1 1 104px;
+  }
 
-    .cardValue {
-      font-size: 1.3rem;
-    }
+  .labelCue,
+  .labelBR {
+    display: none;
+  }
 
-    .cardLabel {
-      font-size: 0.72rem;
-    }
+  .labelBL {
+    bottom: 18px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cardInner {
+  .chipCard {
     animation: none;
   }
 
-  .labelBL svg {
+  .labelCue svg {
     animation: none;
   }
 
