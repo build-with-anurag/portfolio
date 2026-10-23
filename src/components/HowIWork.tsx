@@ -12,7 +12,7 @@ const ITEMS = [
   },
   {
     title: "Depth Me Jao",
-    body: "I don't stop at the surface of a tool. Arch Linux installed from scratch, how transformers actually work under the hood — understanding the layer underneath is the whole point.",
+    body: "I don't stop at the surface of a tool. Arch Linux installed from scratch, how transformers actually work under the hood — self-attention, embeddings, the full inference pipeline — understanding the layer underneath is the whole point.",
   },
   {
     title: "Bana Kar Seekho",

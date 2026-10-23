@@ -30,10 +30,21 @@ const TABS = [
         structures</strong> for the fundamentals; <strong>Linux internals</strong>{" "}
         the hands-on way — distro-hopping from Garuda and Ubuntu through Fedora
         to Arch with Hyprland; and <strong>AI in depth</strong> — transformer
-        architecture and tokens, not just prompts.
+        architecture, multi-head self-attention, token embeddings,
+        feed-forward layers, backpropagation and inference pipelines, not
+        just prompts.
       </>
     ),
-    chips: ["C", "Data Structures", "Linux", "GenAI"],
+    chips: [
+      "C",
+      "Data Structures",
+      "Linux",
+      "GenAI",
+      "Transformers",
+      "LLMs",
+      "Self-Attention",
+      "Embeddings",
+    ],
   },
   {
     id: "teach",
@@ -152,7 +163,11 @@ export default function About() {
               as a school kid, then went deep on <strong>Linux</strong> — all
               the way to installing <strong>Arch from scratch</strong> — and on
               how AI actually works under the hood:{" "}
-              <strong>transformer architecture</strong>, tokens, attention.
+              <strong>transformer architecture</strong>, self-attention,
+              tokenisation and embeddings, positional encoding, context
+              windows and autoregressive inference — the machinery behind{" "}
+              <strong>large language models</strong>, not just prompts on top
+              of them.
             </p>
 
             <p className={styles.body} data-animate>
