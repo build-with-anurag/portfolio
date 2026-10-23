@@ -90,7 +90,10 @@
 }
 
 /* Static chip grid — loading state + no-WebGL fallback. Same logo
-   artwork as the balls, as soft white chips with a gentle bob. */
+   artwork as the balls, as soft white chips with a gentle bob. It is
+   the section's first-paint face, so it must read unmistakably as a
+   glowing cluster of balls — generous chip size and a soft halo
+   behind the group — never as a few dots lost in a dark box. */
 .chipGrid {
   position: absolute;
   inset: 0;
@@ -99,16 +102,29 @@
   align-content: center;
   justify-content: center;
   align-items: center;
-  gap: clamp(10px, 2.2vw, 22px);
+  gap: clamp(12px, 2.4vw, 26px);
   padding: clamp(18px, 4vw, 44px);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      46% 52% at 50% 50%,
+      rgba($bright-blue, 0.14),
+      transparent 70%
+    );
+    pointer-events: none;
+  }
 }
 
 .chipBall {
+  position: relative;
   display: grid;
   place-items: center;
   overflow: hidden;
-  width: clamp(58px, 9vw, 96px);
-  height: clamp(58px, 9vw, 96px);
+  width: clamp(66px, 10vw, 110px);
+  height: clamp(66px, 10vw, 110px);
   border-radius: 50%;
   background: radial-gradient(
     circle at 32% 28%,
@@ -118,6 +134,7 @@
   );
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.35),
+    0 0 22px rgba($bright-blue, 0.13),
     inset 0 -6px 12px rgba(20, 30, 60, 0.12);
   animation: chipBob 5.5s ease-in-out infinite alternate;
 

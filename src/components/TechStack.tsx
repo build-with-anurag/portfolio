@@ -60,18 +60,27 @@ function ChipGrid() {
 }
 
 /**
- * Tech Stack — MoncyDev/Rajesh-style white logo balls with real physics
- * (React Three Fiber + rapier) that drop in, pile up, and react to the
- * pointer (push + gentle magnetism). Section header follows the v3
- * pattern (numbered eyebrow + Fraunces heading); heading reveal follows
- * the site's GSAP data-animate pattern.
+ * Tech Stack — Rajesh-style white logo balls floating in zero gravity
+ * (React Three Fiber + rapier): a loose cluster hovers at the centre
+ * of the panel and the pointer acts as a magnet the swarm gathers
+ * around and follows. Section header follows the v3 pattern (numbered
+ * eyebrow + Fraunces heading); heading reveal follows the site's GSAP
+ * data-animate pattern — the STAGE itself is deliberately NOT part of
+ * that reveal: it must be fully visible from the section's first
+ * paint, never an invisible box waiting on an animation.
  *
- * Loading strategy (why the panel can no longer sit empty): the stage
- * shows the chip grid immediately; the heavy scene chunk starts loading
- * on the visitor's first scroll intent or when the stage comes within
- * ~1200px — whichever first — and once mounted it is NEVER unmounted
- * (scrolling away just freezes its render loop and physics, which costs
- * nothing and keeps the pile exactly where it settled).
+ * Loading strategy (why the panel can no longer sit empty, or even
+ * look empty): the stage shows the chip grid from first paint; the
+ * heavy scene chunk starts loading at the EARLIEST of — browser idle
+ * shortly after window load, the visitor's first scroll intent
+ * anywhere on the page, or the stage coming within ~1200px — so in
+ * normal reading the scene is already alive and settled when the
+ * visitor arrives. (This deliberately spends a little background CPU
+ * earlier than a lab audit would like; a section that greets its
+ * visitor already alive is worth more than the points.) Once mounted
+ * the scene is NEVER unmounted — scrolling away just freezes its
+ * render loop and physics, which costs nothing and keeps the swarm
+ * exactly where it floated.
  */
 export default function TechStack() {
   const rootRef = useRef<HTMLElement>(null);
@@ -79,6 +88,7 @@ export default function TechStack() {
   const [mount, setMount] = useState(false);
   const [webglOk, setWebglOk] = useState<boolean | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
+  const [gridGone, setGridGone] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(false);
   const [inView, setInView] = useState(false);
   const [stageW, setStageW] = useState(0);
@@ -98,7 +108,9 @@ export default function TechStack() {
     };
   }, [mount]);
 
-  // Start loading the scene early: first scroll intent, or proximity.
+  // Start loading the scene at the earliest opportunity: browser idle
+  // right after window load, first scroll intent anywhere, or the
+  // stage nearing the viewport — whichever fires first.
   useEffect(() => {
     if (mount) return;
     const go = () => setMount(true);
@@ -106,6 +118,23 @@ export default function TechStack() {
     window.addEventListener("wheel", go, opts);
     window.addEventListener("touchmove", go, opts);
     window.addEventListener("keydown", go, opts);
+    window.addEventListener("scroll", go, opts);
+
+    const idle = window as unknown as {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let ric: number | undefined;
+    let timer: number | undefined;
+    const scheduleIdle = () => {
+      if (idle.requestIdleCallback) {
+        ric = idle.requestIdleCallback(go, { timeout: 2500 });
+      } else {
+        timer = window.setTimeout(go, 1200);
+      }
+    };
+    if (document.readyState === "complete") scheduleIdle();
+    else window.addEventListener("load", scheduleIdle, { once: true });
 
     const el = stageRef.current;
     let io: IntersectionObserver | null = null;
@@ -122,6 +151,10 @@ export default function TechStack() {
       window.removeEventListener("wheel", go);
       window.removeEventListener("touchmove", go);
       window.removeEventListener("keydown", go);
+      window.removeEventListener("scroll", go);
+      window.removeEventListener("load", scheduleIdle);
+      if (ric !== undefined) idle.cancelIdleCallback?.(ric);
+      if (timer !== undefined) window.clearTimeout(timer);
       io?.disconnect();
     };
   }, [mount]);
@@ -185,6 +218,15 @@ export default function TechStack() {
     return () => io.disconnect();
   }, []);
 
+  // Once the scene is ready, let the canvas finish its fade-in OVER
+  // the chip grid before the grid steps aside — no frame where the
+  // stage shows neither.
+  useEffect(() => {
+    if (!sceneReady) return;
+    const t = setTimeout(() => setGridGone(true), 700);
+    return () => clearTimeout(t);
+  }, [sceneReady]);
+
   const handleReady = useCallback(() => setSceneReady(true), []);
   const showScene = mount && webglOk === true && !sceneFailed;
   const dpr: [number, number] = stageW > 0 && stageW < 760 ? [1, 1.5] : [1, 2];
@@ -199,12 +241,11 @@ export default function TechStack() {
       </h2>
       <div
         className={styles.stage}
-        data-animate="stack-stage"
         ref={stageRef}
         role="img"
         aria-label="Interactive physics balls, each printed with a technology logo from Anurag's stack"
       >
-        {!sceneReady && <ChipGrid />}
+        {!gridGone && <ChipGrid />}
         {showScene && (
           <div className={styles.stageCanvas}>
             <TechStackScene
