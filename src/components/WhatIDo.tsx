@@ -44,11 +44,12 @@ const PANELS = [
         I like going under the hood. I distro-hopped through Garuda, Ubuntu
         and Fedora on my way to installing <strong>Arch Linux</strong> from
         scratch, I&apos;m comfortable on the command line, and I study how AI
-        works internally — <strong>transformer architecture</strong>, tokens,
-        attention.
+        works internally — <strong>transformer architecture</strong>,
+        self-attention mechanisms, tokenisation, vector embeddings,
+        positional encoding and how LLMs generate text token by token.
       </>
     ),
-    chips: ["Linux", "Arch", "Git", "CLI Tools"],
+    chips: ["Linux", "Arch", "Git", "CLI Tools", "LLM Internals"],
   },
 ];
 
