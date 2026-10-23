@@ -15,12 +15,18 @@ export default function ScrollProgress() {
   useEffect(() => {
     let rafId = 0;
     let ticking = false;
+    // Cache the scrollable height: reading scrollHeight inside the
+    // scroll handler forces layout every frame; it only changes when
+    // the document resizes, which the ResizeObserver reports.
+    let max = 0;
+    const measure = () => {
+      max = document.documentElement.scrollHeight - window.innerHeight;
+    };
 
     const update = () => {
       ticking = false;
       const el = barRef.current;
       if (!el) return;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
       el.style.transform = `scaleX(${progress})`;
     };
@@ -32,11 +38,18 @@ export default function ScrollProgress() {
       }
     };
 
+    measure();
     update();
+    const ro = new ResizeObserver(() => {
+      measure();
+      onScroll();
+    });
+    ro.observe(document.documentElement);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(rafId);
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };

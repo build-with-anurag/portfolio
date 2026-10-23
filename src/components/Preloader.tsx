@@ -30,6 +30,13 @@ export default function Preloader() {
     const dismiss = () => {
       if (dismissed) return;
       dismissed = true;
+      // Tell the hero the curtain is lifting so its entrance
+      // choreography starts in sync with the fade — not on a guessed
+      // fixed delay (the old 2s constant outlived the 1.1s cap and
+      // left the hero sitting hidden for ~a second after the lift).
+      (window as unknown as { __avPreloaderGone?: boolean }).__avPreloaderGone =
+        true;
+      window.dispatchEvent(new Event("av:preloader-leaving"));
       setLeaving(true);
       goneTimer = window.setTimeout(() => setGone(true), FADE_MS);
     };

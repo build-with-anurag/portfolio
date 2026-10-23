@@ -118,7 +118,7 @@ export default function Projects() {
             </div>
             <Image
               className={styles.shot}
-              src="/projects/krishi-setu.png"
+              src="/projects/krishi-setu.webp"
               alt="Krishi Setu — the live agricultural marketplace prototype homepage"
               width={2880}
               height={1800}
