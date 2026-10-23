@@ -71,13 +71,18 @@ function ChipGrid() {
  *
  * Loading strategy (why the panel can no longer sit empty, or even
  * look empty): the stage shows the chip grid from first paint; the
- * heavy scene chunk starts loading at the EARLIEST of — browser idle
- * shortly after window load, the visitor's first scroll intent
- * anywhere on the page, or the stage coming within ~1200px — so in
- * normal reading the scene is already alive and settled when the
- * visitor arrives. (This deliberately spends a little background CPU
- * earlier than a lab audit would like; a section that greets its
- * visitor already alive is worth more than the points.) Once mounted
+ * heavy scene chunk starts loading at the EARLIEST of — the visitor's
+ * first scroll intent anywhere on the page, the stage coming within
+ * ~1200px, or a DELAYED idle warm-up (only once the main thread has
+ * been quiet for a few seconds after window load) — so in normal
+ * reading the scene is already alive and settled when the visitor
+ * arrives. The idle path is deliberately late: the ~3.2 MB three.js
+ * + rapier chunk must never compete with first paint, the hero
+ * entrance or LCP for main thread — warming it the moment the
+ * browser first idled landed its parse square inside the load
+ * window (seconds of blocking time in throttled audits).
+ * The scroll-intent and proximity triggers keep the arrival-alive
+ * guarantee for anyone who heads here sooner. Once mounted
  * the scene is NEVER unmounted — scrolling away just freezes its
  * render loop and physics, which costs nothing and keeps the swarm
  * exactly where it floated.
@@ -108,9 +113,12 @@ export default function TechStack() {
     };
   }, [mount]);
 
-  // Start loading the scene at the earliest opportunity: browser idle
-  // right after window load, first scroll intent anywhere, or the
-  // stage nearing the viewport — whichever fires first.
+  // Start loading the scene at the earliest SAFE opportunity: first
+  // scroll intent anywhere, the stage nearing the viewport, or a
+  // delayed idle warm-up — whichever fires first. The idle path waits
+  // for window load PLUS a settle delay before asking for an idle
+  // slot, so the heavy chunk's parse can never land in the first
+  // paint / LCP window and fight the hero for the main thread.
   useEffect(() => {
     if (mount) return;
     const go = () => setMount(true);
@@ -126,12 +134,48 @@ export default function TechStack() {
     };
     let ric: number | undefined;
     let timer: number | undefined;
+    let settleTimer: number | undefined;
+    // The idle warm-up may only start once the main thread has been
+    // QUIET — no long task for QUIET_MS — measured from window load.
+    // A fixed post-load delay was not enough on throttled phones: the
+    // page's own work runs long there, so a timer still landed inside
+    // the busy window and the chunk's parse became fresh blocking
+    // time. Watching real long tasks makes the warm-up wait for the
+    // actual calm after first paint, the hero entrance and LCP, on
+    // any hardware. Browsers without the longtask API fall back to a
+    // plain post-load delay.
+    const QUIET_MS = 3000;
+    const FALLBACK_MS = 4000;
     const scheduleIdle = () => {
-      if (idle.requestIdleCallback) {
-        ric = idle.requestIdleCallback(go, { timeout: 2500 });
-      } else {
-        timer = window.setTimeout(go, 1200);
+      let lastBusy = performance.now();
+      let po: PerformanceObserver | null = null;
+      try {
+        po = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            lastBusy = Math.max(lastBusy, entry.startTime + entry.duration);
+          }
+        });
+        po.observe({ type: "longtask", buffered: true });
+      } catch {
+        po = null;
       }
+      const fire = () => {
+        po?.disconnect();
+        if (idle.requestIdleCallback) {
+          ric = idle.requestIdleCallback(go, { timeout: 2500 });
+        } else {
+          timer = window.setTimeout(go, 1200);
+        }
+      };
+      if (!po) {
+        settleTimer = window.setTimeout(fire, FALLBACK_MS);
+        return;
+      }
+      const check = () => {
+        if (performance.now() - lastBusy >= QUIET_MS) fire();
+        else settleTimer = window.setTimeout(check, 500);
+      };
+      settleTimer = window.setTimeout(check, 500);
     };
     if (document.readyState === "complete") scheduleIdle();
     else window.addEventListener("load", scheduleIdle, { once: true });
@@ -155,6 +199,7 @@ export default function TechStack() {
       window.removeEventListener("load", scheduleIdle);
       if (ric !== undefined) idle.cancelIdleCallback?.(ric);
       if (timer !== undefined) window.clearTimeout(timer);
+      if (settleTimer !== undefined) window.clearTimeout(settleTimer);
       io?.disconnect();
     };
   }, [mount]);
