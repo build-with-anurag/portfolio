@@ -1,7 +1,8 @@
 @use "../app/variables" as *;
 
 .section {
-  padding: 100px clamp(20px, 6vw, 84px) 110px;
+  --pad: clamp(20px, 6vw, 84px);
+  padding: 100px var(--pad) 110px;
   background: $bg;
 }
 
@@ -47,16 +48,23 @@
 
 .stage {
   position: relative;
-  margin-top: 44px;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 620px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 20px;
-  overflow: hidden;
-  background:
-    radial-gradient(55% 60% at 50% 88%, rgba($blue, 0.13), transparent 70%),
-    $bg-soft;
+  margin-top: 26px;
+  /* FREE-FLOATING (Rajesh reference): no panel, no border, no rounded
+     box — the play area is the section's own open space. The stage
+     breaks out of the section's side padding to span the full page
+     width and runs tall, so the swarm floats on the bare page
+     background, strays roam wide, and the cluster hangs just under
+     the heading. */
+  width: calc(100% + 2 * var(--pad));
+  margin-left: calc(-1 * var(--pad));
+  height: clamp(470px, 82vh, 880px);
+  /* Only a whisper of ambience so the open area feels lit — it must
+     read as the page itself, never as a container. */
+  background: radial-gradient(
+    58% 54% at 50% 44%,
+    rgba($blue, 0.1),
+    transparent 70%
+  );
 
   canvas {
     display: block;
@@ -172,11 +180,11 @@
 
 @media (max-width: 880px) {
   .section {
-    padding: 80px 20px 90px;
+    --pad: 20px;
+    padding: 80px var(--pad) 90px;
   }
 
   .stage {
-    aspect-ratio: 4 / 3.4;
-    max-height: none;
+    height: clamp(470px, 72vh, 640px);
   }
 }

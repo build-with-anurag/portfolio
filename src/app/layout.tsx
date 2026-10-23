@@ -53,6 +53,17 @@ export default function RootLayout({
       className={`${inter.variable} ${caveat.variable} ${fraunces.variable}`}
     >
       <body>
+        {/* Scroll policy, part 1 — must run before the page paints:
+            kill the browser's scroll restoration and start at the
+            top, so a reload never flashes (or lands on) a mid-page
+            position. SmoothScroll (part 2) then walks a FRESH visit
+            carrying a #hash to its section once layout settles. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{history.scrollRestoration='manual';window.scrollTo(0,0);}catch(e){}",
+          }}
+        />
         <SmoothScroll />
         {children}
       </body>
