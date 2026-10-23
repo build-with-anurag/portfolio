@@ -45,7 +45,9 @@
   top: -2.5vh; /* centred, lifted slightly above the middle */
   z-index: 3;
   align-self: center;
-  padding: 120px 12px 90px clamp(20px, 4vw, 56px);
+  /* Left padding clears the fixed social rail (left: 22px + icon + line)
+     with room to spare, so no copy ever sits under the rail icons. */
+  padding: 120px 12px 90px clamp(104px, 7.5vw, 120px);
 }
 
 .name {
@@ -64,6 +66,17 @@
 }
 
 .nameItalic {
+  /* The surname is the wider line: sized down (and tracked a touch
+     tighter) so the full word ends inside the left zone, before the
+     portrait's melt zone begins — it was running under the portrait.
+     width: max-content matters too: with background-clip: text the
+     gradient only paints inside the element's own box, so any glyph
+     overflowing the h1's box renders invisible — the box must be as
+     wide as the word itself. */
+  width: max-content;
+  max-width: none;
+  font-size: clamp(3.6rem, 6.6vw, 7.2rem);
+  letter-spacing: -0.02em;
   font-style: italic;
   font-weight: 520;
   background: linear-gradient(94deg, $bright-blue 5%, $pale 58%, $gold 105%);
@@ -211,15 +224,15 @@
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
-    black 30%,
-    black 88%,
+    black 37%,
+    black 85%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to right,
     transparent 0%,
-    black 30%,
-    black 88%,
+    black 37%,
+    black 85%,
     transparent 100%
   );
 }
@@ -230,15 +243,15 @@
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 7%,
-    black 86%,
+    black 13%,
+    black 80%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 7%,
-    black 86%,
+    black 13%,
+    black 80%,
     transparent 100%
   );
 }
@@ -537,6 +550,13 @@
 
   .name {
     font-size: clamp(3.1rem, 13.5vw, 5rem);
+  }
+
+  .nameItalic {
+    /* Mobile keeps the pre-redesign behaviour: surname tracks the
+       h1's own size instead of the desktop clamp. */
+    font-size: inherit;
+    letter-spacing: -0.01em;
   }
 
   .tagline {
