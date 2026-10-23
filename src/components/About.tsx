@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { Layers, Network, Rocket, Zap } from "lucide-react";
 import styles from "./About.module.scss";
@@ -139,11 +140,11 @@ export default function About() {
         <div className={styles.cols}>
           <div className={styles.leftCol}>
             <figure className={styles.portrait} data-animate>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/about-photo.webp"
                 alt="Portrait of Anurag Vishwakarma"
-                loading="lazy"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 420px, 480px"
               />
             </figure>
 

@@ -1,0 +1,31 @@
+# Anurag Vishwakarma
+
+> Portfolio of Anurag Vishwakarma, a Diploma CSE student and builder from Bhopal, India. CSE student. Builder. One live prototype at a time.
+
+Anurag Vishwakarma is a Diploma in Computer Science Engineering student at S.V. Polytechnic College, Bhopal, India. He builds web products end to end with Next.js, TypeScript, React and Python, and explores systems in depth — Linux (including Arch Linux installed from scratch), Android custom ROMs, and how large language models work (transformer architecture, self-attention, embeddings). His featured project is Krishi Setu, a live prototype of an agricultural marketplace. He completed a 4-week Generative AI internship at SGSU, where he also taught concepts to classmates. He is open to internships.
+
+## Portfolio Sections
+
+- [Home](https://anurag-web-portfolio.vercel.app/#home): Introduction, portrait and headline stats
+- [About](https://anurag-web-portfolio.vercel.app/#about): Background, principles and the SGSU Generative AI internship
+- [What I Do](https://anurag-web-portfolio.vercel.app/#what-i-do): Building, learning and teaching — skills and approach
+- [Projects](https://anurag-web-portfolio.vercel.app/#projects): Shipped work, led by the Krishi Setu live prototype
+- [Journey](https://anurag-web-portfolio.vercel.app/#journey): Timeline from first code to the Krishi Setu prototype
+- [How I Work](https://anurag-web-portfolio.vercel.app/#how-i-work): Working method and principles
+- [Contact](https://anurag-web-portfolio.vercel.app/#contact): Ways to get in touch
+
+## Projects
+
+- [Krishi Setu — live prototype](https://krishi-setu-lovat.vercel.app): Agricultural marketplace prototype built with Next.js 15 and TypeScript for the Smart India Hackathon, with team Krishi Mitra. Escrow-style payment release via a 4-digit handover PIN, OpenCV quality pre-check, 5-factor match score and hyperlocal discovery under 25 km. A working prototype, not a product in real use
+- [Krishi Setu — source code](https://github.com/itsanuragv/krishi-setu): GitHub repository for Krishi Setu
+- [Portfolio — source code](https://github.com/build-with-anurag/portfolio): Source code of this portfolio site
+
+## Documents
+
+- [Resume (PDF)](https://anurag-web-portfolio.vercel.app/resume.pdf): One-page resume of Anurag Vishwakarma
+
+## Profiles
+
+- [GitHub](https://github.com/build-with-anurag): Code and projects
+- [LinkedIn](https://www.linkedin.com/in/anurag-v1241): Professional profile
+- [Instagram](https://www.instagram.com/iam.anuragv): Social profile
