@@ -13,6 +13,7 @@ import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, useTexture } from "@react-three/drei";
 import {
+  BallCollider,
   CuboidCollider,
   Physics,
   RigidBody,
@@ -29,14 +30,16 @@ import { TECH_TEXTURES } from "./techStackData";
  * softly against each other. No floor, no piling, nothing ever sinks.
  *
  * Forces (see ForceField): a gentle spring steers each ball toward a
- * personal anchor near the centre, so at rest the balls form the
- * floating centre cluster; while a fine pointer is over the panel a
- * stronger steering toward the (smoothed) pointer takes over and the
- * swarm follows it. Steering is PD-style — desired velocity toward the
- * target, impulse closes the gap with a time constant — so arrivals
- * are soft and dreamy, never twitchy, and there is no repulsive core
- * shoving a hole in the swarm: the pull simply fades out in the last
- * fraction of a unit so balls pack AROUND the point.
+ * personal anchor in the compact centre bunch, so at rest the balls
+ * form the floating centre cluster; while a fine pointer is over the
+ * panel a brisk steering toward the (lightly smoothed, velocity-led)
+ * pointer takes over and the swarm follows it eagerly. Steering is
+ * PD-style — desired velocity toward the target, impulse closes the
+ * gap with a time constant — so arrivals stay soft, never twitchy.
+ * The pointer also carries a small kinematic sphere: balls pack
+ * against it, and a fast pass through the swarm physically shoves
+ * them aside before the attractor gathers them back — the reference's
+ * push-and-regather, not a hole punched in the pack.
  *
  * The world is FITTED TO THE PANEL, not fixed: the first version used
  * one desktop-sized world (17.8 units wide) for every viewport, so on
@@ -113,34 +116,42 @@ type BallSpec = {
 
 function makeBalls(world: World): BallSpec[] {
   const balls: BallSpec[] = [];
-  // Spawn in a loose jittered grid AROUND THE CENTRE (zero gravity —
-  // nothing drops in). Spacing keeps a hair of daylight between even
-  // the largest neighbours so the cluster never starts interpenetrated
-  // and "explodes" apart; the anchor springs then gather it gently
-  // into the tighter resting blob over the first seconds.
-  const step = world.radius * 2.34;
-  const aspect = world.halfW / world.halfH;
-  const cols = Math.round(
-    THREE.MathUtils.clamp(Math.sqrt(world.count) * (aspect >= 1 ? 1.25 : 0.85), 3, 6),
+  // Spawn BORN as the bunch: a golden-spiral (sunflower) packing —
+  // even density, no rows or columns for the eye to catch (the
+  // earlier jittered GRID read as "scattered dice" on entry). The
+  // spiral is AREA-SCALED: each ball's distance from the centre grows
+  // with the cumulative area of the balls inside it, so neighbours
+  // end up just touching — snug, but never interpenetrated. (A plain
+  // fixed-radius disc overpacks once sizes vary: Rapier then resolves
+  // the overlaps by flinging the bunch across the whole panel — the
+  // round-3 entry bug.) The bunch is squashed vertically on wide
+  // stages into the reference's ellipse, and balls are dealt across
+  // three shallow z sub-layers so they overlap in depth like the
+  // reference cluster. Anchors ARE the spawn points (a hair tighter),
+  // so the home springs hold this compact bunch — roughly the central
+  // third-to-half of the panel — from frame one.
+  const GOLDEN_ANGLE = 2.39996;
+  const zLayers = [-0.52, 0.04, 0.56];
+  const squash = THREE.MathUtils.clamp((world.halfH / world.halfW) * 1.35, 0.55, 1);
+  const radii = Array.from(
+    { length: world.count },
+    (_, i) => world.radius * (0.8 + hash(i * 3 + 1) * 0.4),
   );
+  let cumArea = 0;
   for (let i = 0; i < world.count; i++) {
-    const radius = world.radius * (0.86 + hash(i * 3 + 1) * 0.26);
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    const rows = Math.ceil(world.count / cols);
-    const x =
-      (col - (cols - 1) / 2) * step + (hash(i * 5 + 2) - 0.5) * 0.35;
-    const y =
-      ((rows - 1) / 2 - row) * step * 0.94 + (hash(i * 7) - 0.5) * 0.35;
-    // Alternate depth by checkerboard parity so neighbours are offset
-    // in z as well as on screen — a shallow two-layer cluster.
-    const z = ((col + row) % 2 === 0 ? 0.42 : -0.42) + (hash(i * 11 + 3) - 0.5) * 0.3;
+    const radius = radii[i];
+    cumArea += (radius + 0.06) * (radius + 0.06);
+    const rr = Math.sqrt(cumArea) * 1.04;
+    const th = i * GOLDEN_ANGLE + (hash(i * 13 + 4) - 0.5) * 0.5;
+    const x = Math.cos(th) * rr + (hash(i * 5 + 2) - 0.5) * 0.22;
+    const y = Math.sin(th) * rr * squash + (hash(i * 7) - 0.5) * 0.22;
+    const z = zLayers[i % 3] + (hash(i * 11 + 3) - 0.5) * 0.24;
     balls.push({
       tex: TECH_TEXTURES[i % TECH_TEXTURES.length],
       radius,
       position: [x, y, z],
       rotation: [hash(i) * 3, hash(i + 40) * 3, hash(i + 80) * 3],
-      anchor: [x * 0.72, y * 0.72],
+      anchor: [x * 0.96, y * 0.96],
     });
   }
   return balls;
@@ -171,7 +182,7 @@ function Ball({
       colliders="ball"
       position={spec.position}
       rotation={spec.rotation}
-      restitution={0.15}
+      restitution={0.35}
       friction={0.35}
       linearDamping={0.1}
       angularDamping={0.5}
@@ -234,24 +245,36 @@ function Bounds() {
 }
 
 /**
- * Force tuning — NOTE: the reference recording plays at 2× speed, so
- * the real reference motion is HALF as fast as the video looks. Every
- * constant below is therefore set deliberately slow: the swarm crosses
- * the panel in seconds, not frames. When in doubt, gentler.
+ * Force tuning — the reference recording plays at 2× speed, so the
+ * real reference motion is half as fast as the video LOOKS — but
+ * side-by-side testing (round 3) showed the first magnetic build
+ * over-corrected into molasses: the swarm trailed seconds behind the
+ * cursor and a fast pass shoved nothing aside. The reference at true
+ * 1× is floaty yet EAGER: the bunch keeps up with a normally moving
+ * cursor, packs around it within about half a second of it stopping,
+ * and the pointer has physical PRESENCE — darting through the swarm
+ * shoves balls aside with a springy jostle before they re-gather.
+ * The constants below aim at exactly that: quick PD steering, a real
+ * travel speed, a lightly-smoothed target with velocity feed-forward,
+ * and a small kinematic sphere giving the pointer a body.
  */
-const POINTER_RADIUS = 12; // the pull reaches most of the panel
-const POINTER_MAX_SPEED = 2.7; // world units/s the swarm may travel at
-const POINTER_TAU = 0.32; // s — velocity-approach time constant (soft)
-const POINTER_SMOOTH = 4.5; // /s — pointer target lag (dreamy follow)
+const POINTER_MAX_SPEED = 9.5; // units/s — a far ball regroups in ~1.2s
+const POINTER_TAU = 0.14; // s — velocity-approach time constant (brisk)
+const POINTER_GAIN = 2.2; // desired speed per unit of distance
+const POINTER_SMOOTH = 14; // /s — attractor target lag (~70ms)
+const PUSHER_SMOOTH = 30; // /s — the physical sphere tracks tighter
+const PUSHER_RADIUS = 0.65; // pointer's physical presence (world units)
 const CENTRE_MAX_SPEED = 0.6; // idle drift back home is a slow float
-const CENTRE_TAU = 0.9; // s — idle steering is lazier still
-const MAX_SPEED = 4.5; // hard clamp: nothing may ever zip or tunnel
+const CENTRE_TAU = 0.9; // s — idle steering stays lazy
+const MAX_SPEED = 12; // hard clamp: nothing may ever zip or tunnel
 
 const _origin = new THREE.Vector3();
 const _target = new THREE.Vector3();
 const _desired = new THREE.Vector3();
 const _impulse = new THREE.Vector3();
 const _smoothPointer = new THREE.Vector3();
+const _prevRaw = new THREE.Vector3();
+const _pointerVel = new THREE.Vector3();
 
 /**
  * ForceField — the invisible hand that makes the swarm behave like
@@ -259,17 +282,22 @@ const _smoothPointer = new THREE.Vector3();
  * desired velocity (PD steering: impulse = (desired − current) ×
  * (1 − e^(−dt/τ)) × mass, frame-rate independent):
  *
- *  - IDLE: desired velocity points at the ball's personal anchor near
- *    the centre (anchors swirl almost imperceptibly and bob a touch,
- *    plus a whisper of sinusoidal air current) — the balls rest as one
- *    loose, slowly breathing cluster in mid-air.
+ *  - IDLE: desired velocity points at the ball's personal anchor in
+ *    the compact centre bunch (anchors swirl almost imperceptibly and
+ *    bob a touch, plus a whisper of sinusoidal air current) — the
+ *    balls rest as one loose, slowly breathing cluster in mid-air.
  *  - POINTER (fine pointers only; touch stays passive): desired
- *    velocity points at the pointer, which is itself smoothed so fast
- *    flicks can't fling the swarm. The pull reaches across the panel
- *    with a gentle distance fade and — crucially — fades OUT over the
- *    last ~0.4 units, so balls decelerate into the point and pack
- *    around it instead of being shoved into a ring with a hole. The
- *    home spring keeps a whisper of strength so strays stay local.
+ *    velocity points at the pointer, lightly smoothed and led by the
+ *    pointer's own velocity so the swarm chases where the cursor is
+ *    GOING, not where it was. The pull reaches across the panel with
+ *    a gentle distance fade and eases — but never dies — at the point
+ *    itself, so balls pack tightly around it. The home spring keeps a
+ *    whisper of strength so strays stay local.
+ *  - PUSH: the pointer also owns a small kinematic sphere (positioned
+ *    here each frame). Attraction rules outside its radius; inside
+ *    it, plain contact physics rules — a fast pass physically shoves
+ *    balls aside, restitution makes the jostle springy, and the
+ *    attractor re-captures the displaced balls a beat later.
  *  - A hard speed clamp backstops everything: no explosions, no
  *    tunnelling through walls on fast pointer moves.
  */
@@ -277,12 +305,22 @@ function ForceField({
   pointerActive,
   bodies,
   balls,
+  pusher,
+  world,
 }: {
   pointerActive: React.RefObject<boolean>;
   bodies: BodiesRef;
   balls: BallSpec[];
+  pusher: React.RefObject<RapierRigidBody | null>;
+  world: World;
 }) {
+  // The pull must reach EVERY ball wherever the pointer parks — on a
+  // wide stage the corner-to-corner diagonal is ~25 units, so a fixed
+  // radius left far balls outside the field entirely (they only crept
+  // home on the idle spring). Cover the full diagonal, always.
+  const pointerRadius = Math.hypot(world.halfW, world.halfH) + 1.5;
   const smoothInit = useRef(false);
+  const wasActive = useRef(false);
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 20);
@@ -290,23 +328,76 @@ function ForceField({
     if (!list.length) return;
     const t = state.clock.elapsedTime;
     const active = pointerActive.current;
+    const pusherBody = pusher.current;
 
     // Pointer position in world units, exponentially smoothed so the
-    // attractor glides behind the cursor instead of teleporting.
+    // attractor glides behind the cursor instead of teleporting; the
+    // physical pusher tracks a tighter smoothing of the same point.
     if (active) {
       const vp = state.viewport.getCurrentViewport(state.camera, _origin);
       const px = (state.pointer.x * vp.width) / 2;
       const py = (state.pointer.y * vp.height) / 2;
       if (!smoothInit.current) {
         _smoothPointer.set(px, py, 0);
+        _prevRaw.set(px, py, 0);
+        _pointerVel.set(0, 0, 0);
         smoothInit.current = true;
       } else {
+        // Pointer velocity (world units/s), lightly smoothed and
+        // clamped — used as feed-forward so the swarm leans into the
+        // cursor's direction of travel instead of trailing it.
+        if (dt > 0) {
+          const rvx = (px - _prevRaw.x) / dt;
+          const rvy = (py - _prevRaw.y) / dt;
+          const rl = Math.hypot(rvx, rvy);
+          const cap = rl > 30 ? 30 / rl : 1;
+          _pointerVel.x += (rvx * cap - _pointerVel.x) * 0.45;
+          _pointerVel.y += (rvy * cap - _pointerVel.y) * 0.45;
+        }
+        _prevRaw.set(px, py, 0);
         const a = 1 - Math.exp(-dt * POINTER_SMOOTH);
         _smoothPointer.x += (px - _smoothPointer.x) * a;
         _smoothPointer.y += (py - _smoothPointer.y) * a;
       }
+
+      // — The pusher: a kinematic sphere with the pointer's position.
+      // On activation it TELEPORTS in (setTranslation — no sweep
+      // through the cluster at infinite speed); after that it follows
+      // via setNextKinematicTranslation so the solver derives a true
+      // velocity and moving it physically shoves balls aside.
+      if (pusherBody) {
+        if (!wasActive.current) {
+          pusherBody.setTranslation({ x: px, y: py, z: 0 }, true);
+        }
+        const pa = 1 - Math.exp(-dt * PUSHER_SMOOTH);
+        const cur = pusherBody.translation();
+        pusherBody.setNextKinematicTranslation({
+          x: cur.x + (px - cur.x) * pa,
+          y: cur.y + (py - cur.y) * pa,
+          z: 0,
+        });
+      }
     } else {
       smoothInit.current = false;
+      _pointerVel.set(0, 0, 0);
+      // Pointer gone: park the pusher far behind the world so it can
+      // never touch a ball.
+      if (pusherBody && wasActive.current) {
+        pusherBody.setTranslation({ x: 0, y: 0, z: -100 }, true);
+      }
+    }
+    wasActive.current = active;
+
+    // Attractor aim point: smoothed pointer + a small velocity lead.
+    let aimX = _smoothPointer.x;
+    let aimY = _smoothPointer.y;
+    if (active) {
+      const leadX = _pointerVel.x * 0.055;
+      const leadY = _pointerVel.y * 0.055;
+      const ll = Math.hypot(leadX, leadY);
+      const lc = ll > 1.4 ? 1.4 / ll : 1;
+      aimX += leadX * lc;
+      aimY += leadY * lc;
     }
 
     const aPointer = 1 - Math.exp(-dt / POINTER_TAU);
@@ -335,20 +426,23 @@ function ForceField({
         const sp = Math.min(dh * 0.55, CENTRE_MAX_SPEED) * (active ? 0.3 : 1);
         const inv = sp / dh;
         _desired.set(_target.x * inv, _target.y * inv, _target.z * inv);
-        const w = aCentre * (active ? 0.35 : 1) * mass;
+        const w = aCentre * (active ? 0.25 : 1) * mass;
         _impulse.x += (_desired.x - v.x) * w;
         _impulse.y += (_desired.y - v.y) * w;
         _impulse.z += (_desired.z - v.z) * w;
       }
 
-      // — Pointer attractor: steer toward the smoothed pointer.
+      // — Pointer attractor: steer eagerly toward the aim point.
+      // Inside the pusher's own radius the steering stands down —
+      // contact physics owns that space, so the pack settles against
+      // the sphere and its neighbours instead of jittering.
       if (active) {
-        _target.set(_smoothPointer.x - tr.x, _smoothPointer.y - tr.y, 0);
+        _target.set(aimX - tr.x, aimY - tr.y, 0);
         const d = Math.hypot(_target.x, _target.y);
-        if (d > 0.001 && d < POINTER_RADIUS) {
-          const fade = 1 - 0.5 * (d / POINTER_RADIUS); // far balls: a tug, not a yank
-          const near = Math.min(1, d / 0.4); // ease off at the point itself — no hole
-          const sp = Math.min(d * 1.1, POINTER_MAX_SPEED) * fade * near;
+        if (d > PUSHER_RADIUS * 0.8 && d < pointerRadius) {
+          const fade = 1 - 0.12 * (d / pointerRadius); // distance barely weakens the pull
+          const near = Math.min(1, 0.25 + d / 0.8); // ease near the point, never to zero
+          const sp = Math.min(d * POINTER_GAIN, POINTER_MAX_SPEED) * fade * near;
           const inv = sp / d;
           _desired.set(_target.x * inv, _target.y * inv, 0);
           _impulse.x += (_desired.x - v.x) * aPointer * mass;
@@ -375,6 +469,29 @@ function ForceField({
   });
 
   return null;
+}
+
+/**
+ * The pointer's physical body: a small kinematic sphere that exists
+ * only while a fine pointer is over the panel (ForceField teleports
+ * it in on activation, drives it per-frame, and parks it far behind
+ * the world on exit). No mesh — pure presence.
+ */
+function PointerPusher({
+  pusher,
+}: {
+  pusher: React.RefObject<RapierRigidBody | null>;
+}) {
+  return (
+    <RigidBody
+      ref={pusher}
+      type="kinematicPosition"
+      colliders={false}
+      position={[0, 0, -100]}
+    >
+      <BallCollider args={[PUSHER_RADIUS]} />
+    </RigidBody>
+  );
 }
 
 /**
@@ -426,10 +543,12 @@ function ScenePhysics({
   active,
   pointerActive,
   bodies,
+  pusher,
 }: {
   active: boolean;
   pointerActive: React.RefObject<boolean>;
   bodies: BodiesRef;
+  pusher: React.RefObject<RapierRigidBody | null>;
 }) {
   const world = useWorld();
   const balls = useMemo(() => makeBalls(world), [world]);
@@ -442,6 +561,7 @@ function ScenePhysics({
       paused={!active}
     >
       <Bounds />
+      <PointerPusher pusher={pusher} />
       {balls.map((spec, i) => (
         <Ball
           key={`${spec.tex}-${i}-${spec.radius.toFixed(2)}`}
@@ -450,7 +570,13 @@ function ScenePhysics({
           bodies={bodies}
         />
       ))}
-      <ForceField pointerActive={pointerActive} bodies={bodies} balls={balls} />
+      <ForceField
+        pointerActive={pointerActive}
+        bodies={bodies}
+        balls={balls}
+        pusher={pusher}
+        world={world}
+      />
     </Physics>
   );
 }
@@ -468,6 +594,7 @@ export default function TechStackScene({
 }) {
   const pointerActive = useRef(false);
   const bodies = useRef<(RapierRigidBody | null)[]>([]);
+  const pusher = useRef<RapierRigidBody | null>(null);
 
   return (
     <Canvas
@@ -495,6 +622,7 @@ export default function TechStackScene({
             active={active}
             pointerActive={pointerActive}
             bodies={bodies}
+            pusher={pusher}
           />
         </WorldProvider>
 
