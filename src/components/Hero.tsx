@@ -138,12 +138,17 @@ export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const role = useTypewriter(ROLES);
 
-  // Entrance choreography — starts as the preloader lifts (~2s mark).
+  // Entrance choreography — the same tweens as always, but started by
+  // the preloader's actual lift (event + flag) instead of a fixed 2s
+  // delay: the cap is ~1.1s now, so the old constant left the finished
+  // page sitting hidden behind nothing for the better part of a second
+  // (and pushed first paint / LCP / Speed Index out with it). A 2.4s
+  // safety net guarantees the entrance can never get stuck waiting.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
-      gsap
-        .timeline({ delay: 2.0, defaults: { ease: "power3.out" } })
+      const tl = gsap
+        .timeline({ paused: true, defaults: { ease: "power3.out" } })
         .from("[data-animate='portrait']", {
           opacity: 0,
           scale: 1.05,
@@ -169,6 +174,24 @@ export default function Hero() {
           { opacity: 0, y: 10, duration: 0.55, stagger: 0.08 },
           "-=0.4",
         );
+
+      let started = false;
+      const start = () => {
+        if (started) return;
+        started = true;
+        tl.play();
+      };
+      const w = window as unknown as { __avPreloaderGone?: boolean };
+      if (w.__avPreloaderGone) {
+        start();
+        return;
+      }
+      window.addEventListener("av:preloader-leaving", start);
+      const safety = window.setTimeout(start, 2400);
+      return () => {
+        window.removeEventListener("av:preloader-leaving", start);
+        window.clearTimeout(safety);
+      };
     }, rootRef);
     return () => ctx.revert();
   }, []);
