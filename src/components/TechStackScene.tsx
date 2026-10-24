@@ -46,8 +46,25 @@ import { TECH_TEXTURES } from "./techStackData";
  * narrow stages the camera only showed a slice of it — balls spread
  * along an over-wide floor, most of them off-frame, leaving a big,
  * nearly empty panel. Here the play box (soft walls on all four sides)
- * is derived from the canvas' real aspect ratio, and ball size/count
+ * is derived from the stage's real aspect ratio, and ball size/count
  * scale with the stage, so the cluster always floats inside the frame.
+ *
+ * FRAMING (round 5 — the sliced-ball fix): the canvas is NOT the
+ * stage. The parent bleeds the canvas past the stage on all four
+ * sides (see StageBleed), and the camera frames the PLAY BOX — the
+ * stage rect plus an extra strip of play height above its top edge
+ * (extTop) — onto the matching sub-rect of that larger canvas. The
+ * visible frustum therefore extends well past every wall: earlier the
+ * frustum edges coincided with the walls, so a ball in the front
+ * z-layer pressed against a wall was perspective-magnified straight
+ * past the frame edge and sliced flat by the canvas rect (most
+ * visible as the straight-cut row of balls under the heading). Now a
+ * ball touching any wall renders in full, the swarm may drift up
+ * behind the heading zone, and only the physical screen edge ever
+ * crops a ball — as in the reference. The pointer is tracked on
+ * window events and mapped through the same framing math (the bled
+ * canvas is pointer-events:none so it can never block the heading's
+ * text or a click).
  *
  * Smoothness rules: fixed 1/60 physics step with interpolation (no
  * spiral of death on slow devices), the render loop fully stops while
@@ -58,16 +75,18 @@ import { TECH_TEXTURES } from "./techStackData";
 const FOV = 40;
 
 type World = {
-  /** half the visible world width (x extent = ±halfW) */
+  /** half the play-box width (x extent = ±halfW) */
   halfW: number;
-  /** half the visible world height */
+  /** half the STAGE height (the play box extends extTop above +halfH) */
   halfH: number;
+  /** full play-box width in world units */
+  worldW: number;
+  /** stage height in world units (2 × halfH, excl. the top strip) */
+  worldH: number;
   /** base ball radius for this stage size */
   radius: number;
   /** how many balls float in this stage's cluster */
   count: number;
-  /** camera distance that frames exactly this world height */
-  dist: number;
 };
 
 function computeWorld(aspect: number): World {
@@ -84,19 +103,102 @@ function computeWorld(aspect: number): World {
   return {
     halfW: worldW / 2,
     halfH: worldH / 2,
+    worldW,
+    worldH,
     radius,
     count,
-    dist: worldH / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2)),
   };
 }
 
-const WorldCtx = createContext<World | null>(null);
+/**
+ * How far the canvas bleeds past the stage rect on each side, in CSS
+ * px (the parent sizes the canvas with exactly these insets and hands
+ * them down, so CSS and framing math can never disagree).
+ */
+export type StageBleed = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+
+/**
+ * Frame — the complete mapping between canvas pixels and world units
+ * at the z=0 plane. The play box (stage + extTop strip above it) is
+ * centred on the stage sub-rect of the bled canvas; everything else
+ * (camera placement, pointer mapping, wall spans) derives from these
+ * numbers, computed once per resize in FrameProvider.
+ */
+type Frame = {
+  world: World;
+  /** extra play height above the stage's top edge, in world units —
+   *  the strip the swarm may drift up into, behind the heading */
+  extTop: number;
+  /** world y of the play box's vertical centre (extTop / 2) */
+  centerY: number;
+  /** CSS px per world unit at z=0 */
+  scale: number;
+  /** world-space point that projects onto the canvas centre */
+  camX: number;
+  camY: number;
+  /** camera distance that realises `scale` across the canvas height */
+  dist: number;
+  bleed: StageBleed;
+  canvasW: number;
+  canvasH: number;
+};
+
+function computeFrame(
+  canvasW: number,
+  canvasH: number,
+  bleed: StageBleed,
+  world: World,
+): Frame {
+  const stageW = Math.max(50, canvasW - bleed.left - bleed.right);
+  const stageH = Math.max(50, canvasH - bleed.top - bleed.bottom);
+  const scale = stageW / world.worldW;
+  const extTop = THREE.MathUtils.clamp(world.worldH * 0.16, 1.2, 1.7);
+  const centerY = extTop / 2;
+  // Centre of the play box's rect in canvas px (y measured top-down):
+  // horizontally the stage centre; vertically the stage centre pulled
+  // up by half the extension strip.
+  const regionCx = bleed.left + stageW / 2;
+  const regionCy = bleed.top + stageH / 2 - (extTop * scale) / 2;
+  // World point that must land on the canvas centre so the play box
+  // lands on its sub-rect: x grows right, y grows up (canvas y down).
+  const camX = (canvasW / 2 - regionCx) / scale;
+  const camY = centerY + (regionCy - canvasH / 2) / scale;
+  const dist =
+    canvasH / scale / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  return {
+    world,
+    extTop,
+    centerY,
+    scale,
+    camX,
+    camY,
+    dist,
+    bleed,
+    canvasW,
+    canvasH,
+  };
+}
+
+const FrameCtx = createContext<Frame | null>(null);
+
+function useSceneFrame(): Frame {
+  const f = useContext(FrameCtx);
+  if (!f) throw new Error("TechStackScene: frame context missing");
+  return f;
+}
 
 function useWorld(): World {
-  const w = useContext(WorldCtx);
-  if (!w) throw new Error("TechStackScene: world context missing");
-  return w;
+  return useSceneFrame().world;
 }
+
+/** Live pointer state in world units (written by PointerTracker). */
+type PointerState = { active: boolean; x: number; y: number };
+type PointerRef = React.RefObject<PointerState>;
 
 /** Deterministic 0..1 hash — spawn layouts never change between renders. */
 function hash(n: number) {
@@ -201,16 +303,22 @@ function Ball({
 }
 
 /**
- * Invisible box fitted to the visible frame — soft walls on ALL sides
- * (zero gravity: nothing may drift out of the panel in any direction).
- * Inner faces sit a hair outside the visible edges, so a ball can
- * visually kiss the panel border but never cross it; back + front
- * slabs keep the swarm in one shallow layer.
+ * Invisible box fitted to the play box — soft walls on ALL sides
+ * (zero gravity: nothing may drift away in any direction). The side
+ * and bottom walls sit at the stage edges as always; the TOP wall now
+ * sits extTop above the stage's top edge, so the swarm may roam into
+ * the strip behind the heading — while the bled canvas renders a wide
+ * margin past every wall, so a ball resting on any wall still renders
+ * whole. Back + front slabs keep the swarm in one shallow layer;
+ * side/back/front spans are centred on the play box (centerY) so they
+ * cover the extension strip too.
  */
 function Bounds() {
-  const world = useWorld();
+  const { world, extTop, centerY } = useSceneFrame();
   const t = 0.6; // wall half-thickness
   const inset = 0.04;
+  const topY = world.halfH + extTop; // top wall line (stage top + strip)
+  const spanH = world.halfH + extTop / 2 + 1; // half-height covering the box
   return (
     <RigidBody type="fixed" colliders={false}>
       {/* bottom + top */}
@@ -220,25 +328,25 @@ function Bounds() {
       />
       <CuboidCollider
         args={[world.halfW + 1, t, 3.4]}
-        position={[0, world.halfH + t - inset, 0]}
+        position={[0, topY + t - inset, 0]}
       />
       {/* sides */}
       <CuboidCollider
-        args={[t, world.halfH + 1, 3.4]}
-        position={[-world.halfW - t + inset, 0, 0]}
+        args={[t, spanH, 3.4]}
+        position={[-world.halfW - t + inset, centerY, 0]}
       />
       <CuboidCollider
-        args={[t, world.halfH + 1, 3.4]}
-        position={[world.halfW + t - inset, 0, 0]}
+        args={[t, spanH, 3.4]}
+        position={[world.halfW + t - inset, centerY, 0]}
       />
       {/* back + front slabs */}
       <CuboidCollider
-        args={[world.halfW + 1, world.halfH + 1, 0.5]}
-        position={[0, 0, -2.2]}
+        args={[world.halfW + 1, spanH, 0.5]}
+        position={[0, centerY, -2.2]}
       />
       <CuboidCollider
-        args={[world.halfW + 1, world.halfH + 1, 0.5]}
-        position={[0, 0, 2.2]}
+        args={[world.halfW + 1, spanH, 0.5]}
+        position={[0, centerY, 2.2]}
       />
     </RigidBody>
   );
@@ -268,7 +376,6 @@ const CENTRE_MAX_SPEED = 0.6; // idle drift back home is a slow float
 const CENTRE_TAU = 0.9; // s — idle steering stays lazy
 const MAX_SPEED = 12; // hard clamp: nothing may ever zip or tunnel
 
-const _origin = new THREE.Vector3();
 const _target = new THREE.Vector3();
 const _desired = new THREE.Vector3();
 const _impulse = new THREE.Vector3();
@@ -302,23 +409,25 @@ const _pointerVel = new THREE.Vector3();
  *    tunnelling through walls on fast pointer moves.
  */
 function ForceField({
-  pointerActive,
+  pointerRef,
   bodies,
   balls,
   pusher,
   world,
+  extTop,
 }: {
-  pointerActive: React.RefObject<boolean>;
+  pointerRef: PointerRef;
   bodies: BodiesRef;
   balls: BallSpec[];
   pusher: React.RefObject<RapierRigidBody | null>;
   world: World;
+  extTop: number;
 }) {
   // The pull must reach EVERY ball wherever the pointer parks — on a
   // wide stage the corner-to-corner diagonal is ~25 units, so a fixed
   // radius left far balls outside the field entirely (they only crept
   // home on the idle spring). Cover the full diagonal, always.
-  const pointerRadius = Math.hypot(world.halfW, world.halfH) + 1.5;
+  const pointerRadius = Math.hypot(world.halfW, world.halfH + extTop) + 1.5;
   const smoothInit = useRef(false);
   const wasActive = useRef(false);
 
@@ -327,16 +436,16 @@ function ForceField({
     const list = bodies.current;
     if (!list.length) return;
     const t = state.clock.elapsedTime;
-    const active = pointerActive.current;
+    const active = pointerRef.current.active;
     const pusherBody = pusher.current;
 
-    // Pointer position in world units, exponentially smoothed so the
+    // Pointer position in world units (PointerTracker maps window
+    // events through the frame), exponentially smoothed so the
     // attractor glides behind the cursor instead of teleporting; the
     // physical pusher tracks a tighter smoothing of the same point.
     if (active) {
-      const vp = state.viewport.getCurrentViewport(state.camera, _origin);
-      const px = (state.pointer.x * vp.width) / 2;
-      const py = (state.pointer.y * vp.height) / 2;
+      const px = pointerRef.current.x;
+      const py = pointerRef.current.y;
       if (!smoothInit.current) {
         _smoothPointer.set(px, py, 0);
         _prevRaw.set(px, py, 0);
@@ -495,36 +604,120 @@ function PointerPusher({
 }
 
 /**
- * Provides the fitted world and keeps the camera framing it. The world
- * refits only after a resize settles (350ms quiet), so dragging a
- * window never respawns the cluster mid-gesture; a settled, materially
- * different aspect gets a fresh cluster.
+ * Provides the frame (fitted world + pixel⇄world mapping) and keeps
+ * the camera realising it. The world refits only after a resize
+ * settles (350ms quiet), so dragging a window never respawns the
+ * cluster mid-gesture; a settled, materially different stage aspect
+ * gets a fresh cluster. The frame itself is recomputed from the
+ * current world on every render, so the camera tracks resizes
+ * immediately even while a world refit is still pending.
  */
-function WorldProvider({ children }: { children: React.ReactNode }) {
+function stageAspect(size: { width: number; height: number }, bleed: StageBleed) {
+  const w = Math.max(50, size.width - bleed.left - bleed.right);
+  const h = Math.max(50, size.height - bleed.top - bleed.bottom);
+  return w / h;
+}
+
+function FrameProvider({
+  bleed,
+  children,
+}: {
+  bleed: StageBleed;
+  children: React.ReactNode;
+}) {
   const size = useThree((s) => s.size);
   const camera = useThree((s) => s.camera);
-  const aspect = size.width / Math.max(size.height, 1);
-  const [world, setWorld] = useState<World>(() => computeWorld(aspect));
+  const [world, setWorld] = useState<World>(() =>
+    computeWorld(stageAspect(size, bleed)),
+  );
   const worldRef = useRef(world);
   worldRef.current = world;
 
   useEffect(() => {
+    const implied = computeWorld(stageAspect(size, bleed));
     const current = worldRef.current;
-    const impliedH =
-      current.dist * 2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-    if (Math.abs(impliedH * aspect - current.halfW * 2) < 0.4) return;
-    const t = setTimeout(() => setWorld(computeWorld(aspect)), 350);
+    if (
+      Math.abs(implied.worldW - current.worldW) < 0.4 &&
+      Math.abs(implied.worldH - current.worldH) < 0.4
+    ) {
+      return;
+    }
+    const t = setTimeout(() => setWorld(implied), 350);
     return () => clearTimeout(t);
-  }, [aspect]);
+  }, [size, bleed]);
+
+  const frame = useMemo(
+    () => computeFrame(size.width, size.height, bleed, world),
+    [size, bleed, world],
+  );
 
   useEffect(() => {
-    camera.position.set(0, 0.15, world.dist);
+    camera.position.set(frame.camX, frame.camY, frame.dist);
     camera.near = 0.1;
-    camera.far = 60;
+    camera.far = 90;
     camera.updateProjectionMatrix();
-  }, [camera, world]);
+  }, [camera, frame]);
 
-  return <WorldCtx.Provider value={world}>{children}</WorldCtx.Provider>;
+  return <FrameCtx.Provider value={frame}>{children}</FrameCtx.Provider>;
+}
+
+/**
+ * Tracks the pointer on WINDOW events and writes its world position
+ * into the shared ref. The canvas itself is pointer-events:none (it
+ * bleeds over the heading and page margins and must never block a
+ * click or a text selection), so R3F's own pointer is useless here.
+ * The active zone is the play box's rect on screen — the stage plus
+ * the extension strip above it — padded by a few px; anywhere else
+ * (including over the heading text itself, above the strip) the
+ * swarm is left alone. Touch pointers never activate: touch drags
+ * scroll the page.
+ */
+function PointerTracker({ pointerRef }: { pointerRef: PointerRef }) {
+  const frame = useSceneFrame();
+  const gl = useThree((s) => s.gl);
+  const frameRef = useRef(frame);
+  frameRef.current = frame;
+
+  useEffect(() => {
+    const el = gl.domElement;
+    const off = () => {
+      pointerRef.current.active = false;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch") {
+        off();
+        return;
+      }
+      const f = frameRef.current;
+      const rect = el.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      // Play-box rect within the canvas (canvas px, y top-down): the
+      // stage inset by the bleeds, extended upward by the strip.
+      const minX = f.bleed.left - 8;
+      const maxX = rect.width - f.bleed.right + 8;
+      const minY = f.bleed.top - f.extTop * f.scale - 8;
+      const maxY = rect.height - f.bleed.bottom + 8;
+      if (px < minX || px > maxX || py < minY || py > maxY) {
+        off();
+        return;
+      }
+      pointerRef.current.x = f.camX + (px - rect.width / 2) / f.scale;
+      pointerRef.current.y = f.camY - (py - rect.height / 2) / f.scale;
+      pointerRef.current.active = true;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", off);
+    window.addEventListener("blur", off);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.documentElement.removeEventListener("pointerleave", off);
+      window.removeEventListener("blur", off);
+      off();
+    };
+  }, [gl, pointerRef]);
+
+  return null;
 }
 
 /**
@@ -541,16 +734,17 @@ function ReadySignal({ onReady }: { onReady?: () => void }) {
 
 function ScenePhysics({
   active,
-  pointerActive,
+  pointerRef,
   bodies,
   pusher,
 }: {
   active: boolean;
-  pointerActive: React.RefObject<boolean>;
+  pointerRef: PointerRef;
   bodies: BodiesRef;
   pusher: React.RefObject<RapierRigidBody | null>;
 }) {
-  const world = useWorld();
+  const frame = useSceneFrame();
+  const world = frame.world;
   const balls = useMemo(() => makeBalls(world), [world]);
 
   return (
@@ -571,11 +765,12 @@ function ScenePhysics({
         />
       ))}
       <ForceField
-        pointerActive={pointerActive}
+        pointerRef={pointerRef}
         bodies={bodies}
         balls={balls}
         pusher={pusher}
         world={world}
+        extTop={frame.extTop}
       />
     </Physics>
   );
@@ -585,14 +780,17 @@ export default function TechStackScene({
   active,
   dpr,
   onReady,
+  bleed,
 }: {
   /** section on-screen: run the loop; off-screen: freeze it entirely */
   active: boolean;
   dpr: [number, number];
   /** textures loaded + world mounted — safe to reveal the canvas */
   onReady?: () => void;
+  /** how far the canvas bleeds past the stage rect (CSS px) */
+  bleed: StageBleed;
 }) {
-  const pointerActive = useRef(false);
+  const pointerRef = useRef<PointerState>({ active: false, x: 0, y: 0 });
   const bodies = useRef<(RapierRigidBody | null)[]>([]);
   const pusher = useRef<RapierRigidBody | null>(null);
 
@@ -602,13 +800,14 @@ export default function TechStackScene({
       frameloop={active ? "always" : "never"}
       camera={{ position: [0, 0.15, 13.5], fov: FOV }}
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
-      style={{ background: "transparent", touchAction: "pan-y" }}
-      onPointerMove={(e) => {
-        // Fine pointers only — touch drags scroll the page instead.
-        if (e.pointerType !== "touch") pointerActive.current = true;
-      }}
-      onPointerLeave={() => {
-        pointerActive.current = false;
+      style={{
+        background: "transparent",
+        touchAction: "pan-y",
+        // The canvas bleeds past the stage on every side — over the
+        // heading zone above and the page margins at the sides. It
+        // must NEVER intercept a click or a text selection; the
+        // pointer is tracked on window events instead (PointerTracker).
+        pointerEvents: "none",
       }}
     >
       <ambientLight intensity={0.45} />
@@ -617,14 +816,15 @@ export default function TechStackScene({
 
       <Suspense fallback={null}>
         <ReadySignal onReady={onReady} />
-        <WorldProvider>
+        <FrameProvider bleed={bleed}>
+          <PointerTracker pointerRef={pointerRef} />
           <ScenePhysics
             active={active}
-            pointerActive={pointerActive}
+            pointerRef={pointerRef}
             bodies={bodies}
             pusher={pusher}
           />
-        </WorldProvider>
+        </FrameProvider>
 
         <Environment resolution={128}>
           <group rotation={[-Math.PI / 3, 0, 0]}>

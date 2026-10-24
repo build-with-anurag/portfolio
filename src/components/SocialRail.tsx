@@ -32,18 +32,21 @@ const SOCIALS = [
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/anurag-v1241",
     Icon: LinkedInIcon,
+    brand: "linkedin",
   },
   {
     label: "GitHub",
     href: "https://github.com/build-with-anurag",
     Icon: GitHubIcon,
+    brand: "github",
   },
   {
     label: "Instagram",
     href: "https://www.instagram.com/iam.anuragv",
     Icon: InstagramIcon,
+    brand: "instagram",
   },
-];
+] as const;
 
 /**
  * Social rail — Vikas Patel style: a fixed vertical rail on the left
@@ -54,13 +57,13 @@ export default function SocialRail() {
   return (
     <div className={styles.rail} aria-label="Social links">
       <span className={styles.line} aria-hidden="true" />
-      {SOCIALS.map(({ label, href, Icon }) => (
+      {SOCIALS.map(({ label, href, Icon, brand }) => (
         <a
           key={label}
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.btn}
+          className={`${styles.btn} ${styles[brand]}`}
           aria-label={label}
         >
           <Icon />
