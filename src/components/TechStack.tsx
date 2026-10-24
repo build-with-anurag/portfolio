@@ -5,6 +5,22 @@ import dynamic from "next/dynamic";
 import gsap from "gsap";
 import styles from "./TechStack.module.scss";
 import { TECH_TEXTURES } from "./techStackData";
+import type { StageBleed } from "./TechStackScene";
+
+/**
+ * Canvas bleed (round 5) — the WebGL canvas is rendered LARGER than
+ * the stage on all four sides, so the camera's frustum extends well
+ * past the physics walls and a ball pressed against any wall still
+ * renders whole (previously wall + frustum edge coincided and front
+ * balls got sliced flat by the canvas rect). The top bleed is the
+ * deep one: the play box extends above the stage's top edge into it,
+ * so the swarm can drift up behind the heading (the heading paints
+ * above the canvas; the canvas is pointer-events:none throughout).
+ * These same numbers are handed to the scene for its framing math —
+ * one source of truth for CSS and camera alike.
+ */
+const BLEED_DESKTOP: StageBleed = { left: 200, top: 232, right: 200, bottom: 96 };
+const BLEED_COMPACT: StageBleed = { left: 112, top: 156, right: 112, bottom: 80 };
 
 // Physics scene is client-only (three.js + rapier WASM) and heavy —
 // lazy-load it so it never blocks the rest of the page.
@@ -275,6 +291,7 @@ export default function TechStack() {
   const handleReady = useCallback(() => setSceneReady(true), []);
   const showScene = mount && webglOk === true && !sceneFailed;
   const dpr: [number, number] = stageW > 0 && stageW < 760 ? [1, 1.5] : [1, 2];
+  const bleed = stageW > 0 && stageW < 900 ? BLEED_COMPACT : BLEED_DESKTOP;
 
   return (
     <section className={styles.section} ref={rootRef} aria-label="Tech stack">
@@ -292,11 +309,20 @@ export default function TechStack() {
       >
         {!gridGone && <ChipGrid />}
         {showScene && (
-          <div className={styles.stageCanvas}>
+          <div
+            className={styles.stageCanvas}
+            style={{
+              top: -bleed.top,
+              right: -bleed.right,
+              bottom: -bleed.bottom,
+              left: -bleed.left,
+            }}
+          >
             <TechStackScene
               active={inView}
               dpr={dpr}
               onReady={handleReady}
+              bleed={bleed}
             />
           </div>
         )}

@@ -7,6 +7,8 @@
 }
 
 .eyebrow {
+  position: relative;
+  z-index: 2; /* above the bled canvas: the swarm drifts behind the header */
   display: flex;
   align-items: center;
   gap: 14px;
@@ -30,6 +32,8 @@
 }
 
 .heading {
+  position: relative;
+  z-index: 2; /* above the bled canvas: the swarm drifts behind the header */
   font-family: var(--font-display), Georgia, "Times New Roman", serif;
   font-size: clamp(2.2rem, 4.8vw, 3.5rem);
   font-weight: 600;
@@ -77,14 +81,24 @@
 }
 
 /* The WebGL canvas overlays the stage; the chip grid sits beneath it
-   until the scene signals it is ready, then the canvas fades in. */
+   until the scene signals it is ready, then the canvas fades in.
+   Round 5: the canvas is BLEEDED past the stage on all four sides
+   (negative insets set inline from the same constants the scene's
+   framing math uses), so the frustum extends past every physics wall
+   and no ball is ever sliced by the canvas rect — only by the real
+   screen edge. It is absolutely positioned, so the bleed costs no
+   layout shift; and it never takes pointer events (the scene tracks
+   the pointer on window events), so the heading above it and the
+   margins beside it stay fully clickable/selectable. */
 .stageCanvas {
   position: absolute;
-  inset: 0;
+  /* top/right/bottom/left set inline (negative bleed insets) */
+  pointer-events: none;
   animation: stageIn 0.6s ease both;
 
   canvas {
     display: block;
+    pointer-events: none;
   }
 }
 
