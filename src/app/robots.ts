@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://anurag-portfolio-rho-ten.vercel.app/sitemap.xml",
+    sitemap: "https://anurag-web-portfolio.vercel.app/sitemap.xml",
   };
 }
